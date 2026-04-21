@@ -1,0 +1,6 @@
+guest_id,token,display_name,custom_greeting,side,group,phone,invite_status,invite_sent_at,invite_channel,default_language,max_guests,rsvp_status,attending_count,additional_guest_names,note,decline_reason,response_updated_at,first_opened_at,last_opened_at,is_locked_manual
+1,abc123marko,Marko Petrovic,,mladozenja,Porodica Petrovic,+381601234567,nije_poslata,,,sr,1,nije_odgovorio,0,[],,,, , ,false
+2,abc123jelena,Jelena Jovanovic,,mlada,Prijatelji,+381641112223,poslata,2026-04-20T12:00:00.000Z,whatsapp,sr,2,nije_odgovorio,0,[],,,,2026-04-20T12:00:00.000Z,,false
+3,abc123stankovic,Porodica Stankovic,"Draga porodico Stankovic, radujemo se vašem dolasku!",zajednicki,Porodica,+381651234567,otvorena,2026-04-18T09:00:00.000Z,viber,sr,4,dolazi,3,"[\"Mina Stankovic\",\"Luka Stankovic\"]",Bez glutena,,2026-04-19T11:33:00.000Z,2026-04-18T10:00:00.000Z,2026-04-20T08:15:00.000Z,false
+4,abc123john,John Smith,,zajednicki,Business,+447700900123,poslata,2026-04-19T11:00:00.000Z,sms,en,2,ne_dolazi,0,[],,Travel plans,2026-04-20T09:00:00.000Z,2026-04-19T12:00:00.000Z,2026-04-20T09:00:00.000Z,false
+

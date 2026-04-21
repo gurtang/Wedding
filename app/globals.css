@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #fffcf7;
+  --text: #332c24;
+  --card: rgba(255, 255, 255, 0.9);
+  --border: rgba(181, 148, 95, 0.28);
+  --gold: #b5945f;
+  --gold-dark: #8f6d3b;
+  --muted: #7b6a54;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(239, 227, 206, 0.45), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(243, 233, 216, 0.55), transparent 35%),
+    linear-gradient(180deg, #fffdfa 0%, #f8f1e5 45%, #fffdfa 100%);
+  color: var(--text);
+}
+
+.wedding-container {
+  @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+}
+
+.info-card {
+  @apply rounded-3xl border border-[color:var(--border)] bg-[color:var(--card)] p-5 shadow-soft backdrop-blur;
+}
+
+.badge {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
+}
+
+.section-title {
+  @apply font-[family-name:var(--font-serif)] text-2xl text-[#4f3b1e] sm:text-3xl;
+}
+
+.wedding-divider {
+  @apply mx-auto h-px w-24 bg-gradient-to-r from-transparent via-[#b5945f] to-transparent;
+}
+
+.wedding-button {
+  @apply inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition duration-200;
+}
+
+.wedding-button-primary {
+  @apply wedding-button bg-[#b5945f] text-white hover:scale-[1.02] hover:bg-[#9f7b45] active:scale-[0.99];
+}
+
+.wedding-button-secondary {
+  @apply wedding-button border border-[#c9aa75] bg-white/80 text-[#6f542c] hover:bg-white;
+}
+
+.admin-card {
+  @apply rounded-2xl border border-[#e7d8bf] bg-white p-4 shadow-sm;
+}
+
+
