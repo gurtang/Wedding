@@ -79,9 +79,9 @@ export const DEFAULT_SETTINGS: Settings = {
   guest_arrival_time: "17:00",
   ceremony_time: "18:00",
   rsvp_deadline: "2026-05-29",
-  intro_text_sr: "Sa velikom radošcu vas pozivamo da svojim prisustvom uvelicate naše vencanje.",
+  intro_text_sr: "Sa velikom radošću vas pozivamo da svojim prisustvom uveličate naše venčanje.",
   intro_text_en: "With great joy, we invite you to honor our wedding with your presence.",
-  agenda_sr: "Dolazak gostiju u 17:00\nVencanje u dvorištu restorana u 18:00",
+  agenda_sr: "Dolazak gostiju u 17:00\nVenčanje u dvorištu restorana u 18:00",
   agenda_en: "Guest arrival at 17:00\nWedding ceremony in the restaurant garden at 18:00",
 };
 

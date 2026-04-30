@@ -84,7 +84,7 @@ export default async function GuestDetailPage({ params }: { params: Promise<{ gu
         </section>
 
         <section className="admin-card flex flex-wrap gap-3">
-          <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sacuvaj izmene</button>
+          <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sačuvaj izmene</button>
         </section>
       </form>
 

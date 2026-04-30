@@ -31,7 +31,7 @@ export default async function AdminSettingsPage() {
           <Field label="Adresa/opis lokacije"><input name="venue_address" defaultValue={settings.venue_address} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Mapa URL"><input name="map_url" defaultValue={settings.map_url} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Vreme dolaska gostiju"><input name="guest_arrival_time" defaultValue={settings.guest_arrival_time} className="w-full rounded-xl border px-3 py-2" /></Field>
-          <Field label="Vreme vencanja"><input name="ceremony_time" defaultValue={settings.ceremony_time} className="w-full rounded-xl border px-3 py-2" /></Field>
+          <Field label="Vreme venčanja"><input name="ceremony_time" defaultValue={settings.ceremony_time} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="RSVP deadline"><input name="rsvp_deadline" defaultValue={settings.rsvp_deadline} className="w-full rounded-xl border px-3 py-2" /></Field>
         </section>
 
@@ -42,7 +42,7 @@ export default async function AdminSettingsPage() {
           <Field label="Agenda EN"><textarea name="agenda_en" defaultValue={settings.agenda_en} rows={5} className="w-full rounded-xl border px-3 py-2" /></Field>
         </section>
 
-        <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sacuvaj podesavanja</button>
+        <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sačuvaj podešavanja</button>
       </form>
     </main>
   );

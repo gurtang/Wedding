@@ -27,6 +27,14 @@ function formatDateSr(value: string, language: Language): string {
   return `${day}.${month}.${year}.`;
 }
 
+function normalizeSerbianText(value: string): string {
+  return value
+    .replace(/\bradoscu\b/gi, "radošću")
+    .replace(/\buvelicate\b/gi, "uveličate")
+    .replace(/\bvencanje\b/gi, "venčanje")
+    .replace(/\bvencanja\b/gi, "venčanja");
+}
+
 export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) {
   const initialStatus = guest.rsvp_status === "nije_odgovorio" ? "" : guest.rsvp_status;
   const [language, setLanguage] = useState<Language>(initialLanguage);
@@ -44,7 +52,8 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
 
   const agendaItems = useMemo(() => {
     const raw = language === "sr" ? settings.agenda_sr : settings.agenda_en;
-    return raw
+    const normalized = language === "sr" ? normalizeSerbianText(raw) : raw;
+    return normalized
       .split("\n")
       .map((item) => item.trim())
       .filter(Boolean);
@@ -123,7 +132,7 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
         <div className="relative wedding-container flex min-h-[450px] flex-col justify-between py-8 sm:min-h-[520px] sm:py-12">
           <div className="flex items-center justify-between">
             <div className="rounded-full border border-[#d7c19e] bg-white/70 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#745932] backdrop-blur">
-              Wedding Invitation
+              {language === "sr" ? "Pozivnica za svadbu" : "Wedding Invitation"}
             </div>
             <LanguageSwitch value={language} onChange={setLanguage} />
           </div>
@@ -137,7 +146,7 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
               {language === "sr" ? settings.couple_names_sr : settings.couple_names_en}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-[#5d4f39] sm:text-lg">
-              {language === "sr" ? settings.intro_text_sr : settings.intro_text_en}
+              {language === "sr" ? normalizeSerbianText(settings.intro_text_sr) : settings.intro_text_en}
             </p>
             <p className="mt-4 text-sm font-semibold uppercase tracking-[0.18em] text-[#81643a]">{eventDateLabel}</p>
             <p className="mt-2 text-sm text-[#69543a] sm:text-base">{settings.venue_name}</p>
@@ -230,7 +239,7 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
               </p>
               {additionalGuests.map((name, index) => (
                 <input
-                  key={`${index}-${name}`}
+                  key={`additional-guest-${index}`}
                   value={name}
                   disabled={isLocked}
                   onChange={(event) => {

@@ -1,0 +1,15 @@
+
+> wedding@1.0.0 dev
+> next dev --port 4010
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:4010
+   - Network:      http://192.168.99.1:4010
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.5s
+ ○ Compiling / ...
+ ✓ Compiled / in 2s (588 modules)
+ GET / 200 in 2598ms
+[?25h

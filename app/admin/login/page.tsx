@@ -6,8 +6,13 @@ type Props = {
 };
 
 export default async function AdminLoginPage({ searchParams }: Props) {
-  if (await isAdminAuthenticated()) {
-    redirect("/admin");
+  try {
+    if (await isAdminAuthenticated()) {
+      redirect("/admin");
+    }
+  } catch (error) {
+    // Never break login page rendering in production due to auth helper issues.
+    console.error("Admin login auth check failed:", error);
   }
 
   const params = (await searchParams) ?? {};
