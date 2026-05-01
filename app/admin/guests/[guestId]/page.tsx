@@ -33,7 +33,7 @@ export default async function GuestDetailPage({ params }: { params: Promise<{ gu
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/admin" className="text-sm font-medium text-[#7a5c2c] hover:underline">Nazad na dashboard</Link>
-        <CopyLinkButton token={guest.token} />
+        <CopyLinkButton token={guest.token} guestName={guest.display_name} />
       </div>
 
       <form action={saveAction} className="space-y-4">

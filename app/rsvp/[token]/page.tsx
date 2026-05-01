@@ -1,9 +1,56 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { RsvpForm } from "@/components/rsvp/rsvp-form";
 import { isDeadlinePassed } from "@/lib/date";
 import { getGuestByToken, getSettings, trackGuestOpen } from "@/lib/sheets";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ token: string }> }): Promise<Metadata> {
+  const { token } = await params;
+
+  try {
+    const [guest, settings] = await Promise.all([getGuestByToken(token), getSettings()]);
+    if (!guest || !settings) {
+      return {
+        title: "Pozivnica za vencanje",
+        description: "Otvorite pozivnicu i potvrdite dolazak.",
+      };
+    }
+
+    const couple = settings.couple_names_sr || settings.couple_names_en || "Pozivnica za vencanje";
+    const description = `Pozivnica za vencanje: ${couple}. Otvorite link i potvrdite dolazak.`;
+
+    return {
+      title: "Pozivnica za vencanje",
+      description,
+      openGraph: {
+        title: "Pozivnica za vencanje",
+        description,
+        type: "website",
+        images: [
+          {
+            url: "/images/wedding-hero.jpg",
+            width: 1200,
+            height: 630,
+            alt: "Pozivnica za vencanje",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Pozivnica za vencanje",
+        description,
+        images: ["/images/wedding-hero.jpg"],
+      },
+    };
+  } catch {
+    return {
+      title: "Pozivnica za vencanje",
+      description: "Otvorite pozivnicu i potvrdite dolazak.",
+    };
+  }
+}
 
 export default async function RsvpPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
