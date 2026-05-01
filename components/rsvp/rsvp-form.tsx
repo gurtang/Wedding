@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/translations";
 import type { Guest, Language, Settings } from "@/lib/types";
 import { LanguageSwitch } from "./language-switch";
@@ -35,6 +35,22 @@ function normalizeSerbianText(value: string): string {
     .replace(/\bvencanja\b/gi, "venčanja");
 }
 
+function extractInitials(settings: Settings): string {
+  const source = (settings.couple_names_sr || settings.couple_names_en || "").trim();
+  if (!source) return "S&M";
+
+  const normalized = source.replace(/\s+/g, " ");
+  const explicitParts = normalized
+    .split(/(?:\s*&\s*|\s+i\s+|\s+and\s+|\s+\+\s+)/i)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  const parts = explicitParts.length >= 2 ? explicitParts : normalized.split(" ").filter(Boolean);
+  const first = parts[0]?.charAt(0).toUpperCase() ?? "S";
+  const second = parts[1]?.charAt(0).toUpperCase() ?? "M";
+  return `${first}&${second}`;
+}
+
 export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) {
   const initialStatus = guest.rsvp_status === "nije_odgovorio" ? "" : guest.rsvp_status;
   const [language, setLanguage] = useState<Language>(initialLanguage);
@@ -44,6 +60,8 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
   const [declineReason, setDeclineReason] = useState(guest.decline_reason ?? "");
   const [message, setMessage] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [isEnvelopeOpen, setIsEnvelopeOpen] = useState(false);
+  const [isEnvelopeOpening, setIsEnvelopeOpening] = useState(false);
 
   const maxAdditional = Math.max(0, guest.max_guests - 1);
   const canAddMore = additionalGuests.length < maxAdditional;
@@ -60,6 +78,7 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
   }, [language, settings.agenda_en, settings.agenda_sr]);
 
   const eventDateLabel = useMemo(() => formatDateSr(settings.event_date, language), [settings.event_date, language]);
+  const envelopeInitials = useMemo(() => extractInitials(settings), [settings]);
 
   const detailsItems = [
     {
@@ -117,8 +136,57 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
     node.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function openInvitation() {
+    if (isEnvelopeOpening || isEnvelopeOpen) return;
+    setIsEnvelopeOpening(true);
+    window.setTimeout(() => {
+      setIsEnvelopeOpen(true);
+      setIsEnvelopeOpening(false);
+    }, 900);
+  }
+
+  useEffect(() => {
+    if (!isEnvelopeOpen) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+
+    document.body.style.overflow = "";
+    return undefined;
+  }, [isEnvelopeOpen]);
+
   return (
-    <div className="space-y-8 pb-24 md:space-y-12 md:pb-10">
+    <div className="relative space-y-8 pb-24 md:space-y-12 md:pb-10">
+      <div
+        className={`envelope-overlay ${isEnvelopeOpen ? "envelope-overlay-hidden" : ""}`}
+        aria-hidden={isEnvelopeOpen}
+      >
+        <button
+          type="button"
+          onClick={openInvitation}
+          className={`envelope-shell ${isEnvelopeOpening ? "envelope-shell-opening" : ""}`}
+          aria-label={language === "sr" ? "Otvori pozivnicu" : "Open invitation"}
+        >
+          <div className="envelope-note" />
+          <span className="envelope-branch envelope-branch-left" />
+          <span className="envelope-branch envelope-branch-right" />
+          <span className="envelope-ribbon envelope-ribbon-left" />
+          <span className="envelope-ribbon envelope-ribbon-right" />
+          <span className="envelope-glint envelope-glint-one" />
+          <span className="envelope-glint envelope-glint-two" />
+          <span className="envelope-side-fold envelope-side-fold-left" />
+          <span className="envelope-side-fold envelope-side-fold-right" />
+          <span className="envelope-flap" />
+          <span className="envelope-body" />
+          <span className="envelope-seal">{envelopeInitials}</span>
+        </button>
+        <p className="envelope-open-hint">
+          {language === "sr" ? "Dodirnite kovertu da otvorite" : "Tap the envelope to open"}
+        </p>
+      </div>
+
       <section
         className="relative overflow-hidden rounded-[2rem] border border-[#e7d7bb] bg-[#f8efe0] shadow-soft"
         style={{
