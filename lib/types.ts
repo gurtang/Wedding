@@ -70,8 +70,8 @@ export const SETTINGS_KEYS: (keyof Settings)[] = [
 ];
 
 export const DEFAULT_SETTINGS: Settings = {
-  couple_names_sr: "Slobodan Miloševic i Milena Ðordevic",
-  couple_names_en: "Slobodan Milosevic & Milena Djordjevic",
+  couple_names_sr: "Milena i Slobodan",
+  couple_names_en: "Milena & Slobodan",
   event_date: "2026-06-12",
   venue_name: "Bolji Život 2, Elektronska industrija Niš",
   venue_address: "Bolji Život 2, Elektronska industrija Niš",
@@ -84,5 +84,4 @@ export const DEFAULT_SETTINGS: Settings = {
   agenda_sr: "Dolazak gostiju u 17:00\nVenčanje u dvorištu restorana u 18:00",
   agenda_en: "Guest arrival at 17:00\nWedding ceremony in the restaurant garden at 18:00",
 };
-
 

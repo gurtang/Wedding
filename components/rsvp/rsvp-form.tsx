@@ -158,6 +158,14 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
               <a href={settings.map_url} target="_blank" rel="noreferrer" className="w-full sm:w-auto wedding-button-secondary">
                 {t(language, "viewMap")}
               </a>
+              <a
+                href={`/api/calendar/${guest.token}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:w-auto wedding-button-secondary"
+              >
+                {t(language, "addToCalendar")}
+              </a>
             </div>
           </div>
 
