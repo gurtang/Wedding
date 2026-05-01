@@ -180,6 +180,10 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
             {item.text ? <p className="mt-2 text-sm text-[#6b5940]">{item.text}</p> : null}
           </article>
         ))}
+        <article className="info-card transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+          <h3 className="font-[family-name:var(--font-serif)] text-xl text-[#503d21]">{t(language, "tableNumberTitle")}</h3>
+          <p className="mt-2 text-sm text-[#6b5940]">{t(language, "tableNumberPlaceholder")}</p>
+        </article>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
