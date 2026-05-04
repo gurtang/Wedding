@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from "next/server";
-import { SESSION_COOKIE_NAME, createSessionValue } from "@/lib/auth";
+import { ADMIN_SESSION_MAX_AGE, SESSION_COOKIE_NAME, createSessionValue } from "@/lib/auth";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: ADMIN_SESSION_MAX_AGE,
   });
 
   return response;

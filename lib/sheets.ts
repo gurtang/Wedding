@@ -274,7 +274,7 @@ export async function trackGuestOpen(token: string): Promise<void> {
   const guest = { ...item.guest };
   if (!guest.first_opened_at) guest.first_opened_at = now;
   guest.last_opened_at = now;
-  if (guest.invite_status === "poslata") {
+  if (guest.invite_status === "nije_poslata" || guest.invite_status === "poslata") {
     guest.invite_status = "otvorena";
   }
 

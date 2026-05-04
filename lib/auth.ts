@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 
 const SESSION_COOKIE = "wedding_admin_session";
+export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
 
 function getSessionSecret(): string | undefined {
   return process.env.SESSION_SECRET;
@@ -46,7 +47,7 @@ export async function setAdminSession(username: string): Promise<void> {
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 30,
+    maxAge: ADMIN_SESSION_MAX_AGE,
   });
 }
 
