@@ -1,5 +1,5 @@
 import WeddingInvitation from "@/components/wedding/WeddingInvitation";
-import { getGuestByToken } from "@/lib/sheets";
+import { getGuestByToken, trackGuestOpen } from "@/lib/sheets";
 import { notFound } from "next/navigation";
 
 export default async function RsvpPage({ params }: { params: Promise<{ token: string }> }) {
@@ -7,6 +7,11 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
   const guest = await getGuestByToken(token);
   if (!guest) {
     notFound();
+  }
+  try {
+    await trackGuestOpen(token);
+  } catch (error) {
+    console.error("trackGuestOpen failed:", error);
   }
   const deadlineEnd = new Date("2026-06-01T23:59:59");
   const showDeadlineCard = new Date() <= deadlineEnd;
