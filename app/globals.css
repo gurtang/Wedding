@@ -1,8 +1,20 @@
+@import "./wedding-animations.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  --rose: oklch(78% 0.085 10);
+  --rose-lt: oklch(93% 0.03 10);
+  --rose-dk: oklch(60% 0.09 10);
+  --gold-lt: oklch(88% 0.055 75);
+  --cream: oklch(97% 0.012 70);
+  --cream2: oklch(94% 0.018 70);
+  --ink: oklch(28% 0.02 70);
+  --ink-lt: oklch(55% 0.02 70);
+  --font-great-vibes: var(--font-great-vibes-next, "Great Vibes", cursive);
+  --font-cormorant: var(--font-cormorant-next, "Cormorant Garamond", serif);
+  --font-montserrat: var(--font-montserrat-next, "Montserrat", sans-serif);
   --bg: #fffcf7;
   --text: #332c24;
   --card: rgba(255, 255, 255, 0.9);
