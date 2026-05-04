@@ -27,6 +27,7 @@ interface WeddingInvitationProps {
   guestId: string
   guestName?: string
   maxAdditionalGuests?: number
+  showDeadlineCard?: boolean
   initialRsvpStatus?: 'dolazi' | 'ne_dolazi' | 'nije_odgovorio'
   initialAdditionalGuestNames?: string[]
   initialNote?: string
@@ -37,6 +38,7 @@ export default function WeddingInvitation({
   guestId,
   guestName,
   maxAdditionalGuests = 0,
+  showDeadlineCard = true,
   initialRsvpStatus = 'nije_odgovorio',
   initialAdditionalGuestNames = [],
   initialNote = '',
@@ -145,8 +147,16 @@ export default function WeddingInvitation({
                 <path d="M18 3C12.5 3 8 7.5 8 13c0 7.5 10 20 10 20s10-12.5 10-20c0-5.5-4.5-10-10-10z" /><circle cx="18" cy="13" r="3.5" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Lokacija</span>
-              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{weddingData.venue}</span>
-              <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>{weddingData.venueAddress}</span>
+              <a
+                href={weddingData.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-80"
+                style={{ textDecoration: 'none' }}
+              >
+                <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{weddingData.venue}</span>
+                <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>{weddingData.venueAddress}</span>
+              </a>
             </div>
             <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
               <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
@@ -159,12 +169,24 @@ export default function WeddingInvitation({
                 Ovde ćete moći da vidite vaš broj stola.
               </span>
             </div>
+            {showDeadlineCard && (
+              <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
+                <svg className="h-9 w-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
+                  <rect x="4" y="7" width="28" height="24" rx="2" /><line x1="4" y1="14" x2="32" y2="14" /><line x1="12" y1="4" x2="12" y2="10" /><line x1="24" y1="4" x2="24" y2="10" />
+                </svg>
+                <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>
+                  RSVP rok
+                </span>
+                <span className="font-cormorant text-[24px]" style={{ color: 'var(--ink)' }}>
+                  Potvrdite vaš dolazak najkasnije do 1. juna.
+                </span>
+              </div>
+            )}
           </div>
         </section>
 
         <AgendaSection items={weddingData.agenda} />
         <CountdownTimer targetDate={weddingData.date} />
-
         <RsvpSection
           guestId={guestId}
           deadline={weddingData.rsvpDeadline}
