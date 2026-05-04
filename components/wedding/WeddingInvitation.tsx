@@ -131,7 +131,7 @@ export default function WeddingInvitation({
                 <rect x="4" y="7" width="28" height="24" rx="2" /><line x1="4" y1="14" x2="32" y2="14" /><line x1="12" y1="4" x2="12" y2="10" /><line x1="24" y1="4" x2="24" y2="10" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Datum</span>
-              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>12. juni 2026.</span>
+              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>12. jun 2026.</span>
               <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>Petak</span>
             </div>
             <div className="flex flex-col items-center gap-3 py-9 px-7 text-center" style={{ background: 'white' }}>
