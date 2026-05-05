@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import EnvelopeAnimation from './EnvelopeAnimation'
@@ -243,7 +243,7 @@ export default function WeddingInvitation({
         <footer className="py-14 px-6 text-center" style={{ background: 'var(--ink)' }}>
           <p className="font-great-vibes leading-none" style={{ fontSize: 72, color: 'var(--rose-lt)' }}>M&amp;S</p>
           <p className="font-cormorant italic mt-3" style={{ fontSize: 16, color: 'oklch(70% 0.02 70)' }}>
-            Radujemo se da ovaj dan podelimo sa vama, porodice Milošević i Đorđević.
+            Radujemo se da ovaj dan podelimo sa vama, porodice Đorđević i Milošević.
           </p>
           <p className="font-montserrat text-[10px] tracking-[0.3em] uppercase mt-6" style={{ color: 'var(--gold-lt)' }}>
             12 · 06 · 2026 · Niš

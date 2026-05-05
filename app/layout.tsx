@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     description: "Digitalna pozivnica za vencanje sa RSVP potvrdom dolaska.",
     images: [
       {
-        url: "/images/wedding-hero.jpg",
+        url: "/images/wedding-hero.png",
         width: 1200,
         height: 630,
         alt: "Pozivnica za vencanje",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Pozivnica za vencanje",
     description: "Digitalna pozivnica za vencanje sa RSVP potvrdom dolaska.",
-    images: ["/images/wedding-hero.jpg"],
+    images: ["/images/wedding-hero.png"],
   },
 };
 
