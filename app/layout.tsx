@@ -37,7 +37,7 @@ const metadataBase = (() => {
   }
 })();
 
-const ogImageUrl = new URL("/images/wedding-hero-v2.png", metadataBase).toString();
+const ogImageUrl = new URL("/images/wedding-og-v3.jpg", metadataBase).toString();
 
 export const metadata: Metadata = {
   metadataBase,
@@ -74,6 +74,10 @@ export const metadata: Metadata = {
     title: "Proslavite naš poseban dan sa nama.",
     description: "Milena & Slobodan - Vencanje",
     images: [ogImageUrl],
+  },
+  other: {
+    "og:image:secure_url": ogImageUrl,
+    "og:image:type": "image/jpeg",
   },
 };
 
