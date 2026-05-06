@@ -1,11 +1,10 @@
-"use client";
+﻿"use client";
 
 export function CopyLinkButton({ token, guestName }: { token: string; guestName?: string }) {
   async function onCopy() {
     const url = `${window.location.origin}/rsvp/${token}`;
-    const header = "Pozivnica za venčanje";
-    const guestLine = guestName?.trim() ? `Pozivnica za: ${guestName.trim()}` : "";
-    const message = [header, guestLine, url].filter(Boolean).join("\n");
+    const guestLine = guestName?.trim() ? `Za: ${guestName.trim()}` : "";
+    const message = [url, guestLine].filter(Boolean).join("\n");
     await navigator.clipboard.writeText(message);
   }
 
@@ -15,5 +14,3 @@ export function CopyLinkButton({ token, guestName }: { token: string; guestName?
     </button>
   );
 }
-
-
