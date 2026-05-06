@@ -33,27 +33,27 @@ const metadataBase = (() => {
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "Pozivnica za vencanje",
+    default: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
     template: "%s | Pozivnica za vencanje",
   },
-  description: "Digitalna pozivnica za vencanje sa RSVP potvrdom dolaska.",
+  description: "Milena & Slobodan - Venčanje",
   openGraph: {
     type: "website",
-    title: "Pozivnica za vencanje",
-    description: "Digitalna pozivnica za vencanje sa RSVP potvrdom dolaska.",
+    title: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
+    description: "Milena & Slobodan - Venčanje",
     images: [
       {
         url: "/images/wedding-hero.png",
         width: 1200,
         height: 630,
-        alt: "Pozivnica za vencanje",
+        alt: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pozivnica za vencanje",
-    description: "Digitalna pozivnica za vencanje sa RSVP potvrdom dolaska.",
+    title: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
+    description: "Milena & Slobodan - Venčanje",
     images: ["/images/wedding-hero.png"],
   },
 };
