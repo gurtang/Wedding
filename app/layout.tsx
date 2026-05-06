@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
 import { Cormorant_Garamond, Great_Vibes, Montserrat } from "next/font/google";
 import "./globals.css";
@@ -21,7 +21,14 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500"],
   variable: "--font-montserrat",
 });
-const siteUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+const siteUrl =
+  process.env.NEXT_PUBLIC_BASE_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+  "http://localhost:3000";
+
 const metadataBase = (() => {
   try {
     return new URL(siteUrl);
@@ -30,31 +37,39 @@ const metadataBase = (() => {
   }
 })();
 
+const ogImageUrl = new URL("/images/wedding-hero.png", metadataBase).toString();
+
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
+    default: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
     template: "%s | Pozivnica za vencanje",
   },
-  description: "Milena & Slobodan - Venčanje",
+  description: "Milena & Slobodan - Vencanje",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
-    title: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
-    description: "Milena & Slobodan - Venčanje",
+    url: "/",
+    siteName: "Milena & Slobodan",
+    locale: "sr_RS",
+    title: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+    description: "Milena & Slobodan - Vencanje",
     images: [
       {
-        url: "/images/wedding-hero.png",
+        url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
+        alt: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pozivamo vas da zajedno sa nama proslavite naš poseban dan.",
-    description: "Milena & Slobodan - Venčanje",
-    images: ["/images/wedding-hero.png"],
+    title: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+    description: "Milena & Slobodan - Vencanje",
+    images: [ogImageUrl],
   },
 };
 
