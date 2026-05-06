@@ -42,10 +42,14 @@ const ogImageUrl = new URL("/images/wedding-hero.png", metadataBase).toString();
 export const metadata: Metadata = {
   metadataBase,
   title: {
-    default: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+    default: "Proslavite naš poseban dan sa nama.",
     template: "%s | Pozivnica za vencanje",
   },
   description: "Milena & Slobodan - Vencanje",
+  robots: {
+    index: true,
+    follow: true,
+  },
   alternates: {
     canonical: "/",
   },
@@ -54,20 +58,20 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "Milena & Slobodan",
     locale: "sr_RS",
-    title: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+    title: "Proslavite naš poseban dan sa nama.",
     description: "Milena & Slobodan - Vencanje",
     images: [
       {
         url: ogImageUrl,
         width: 1200,
         height: 630,
-        alt: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+        alt: "Proslavite naš poseban dan sa nama.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pozivamo vas da zajedno sa nama proslavite nas poseban dan.",
+    title: "Proslavite naš poseban dan sa nama.",
     description: "Milena & Slobodan - Vencanje",
     images: [ogImageUrl],
   },
