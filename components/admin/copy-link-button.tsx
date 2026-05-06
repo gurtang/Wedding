@@ -2,7 +2,7 @@
 
 export function CopyLinkButton({ token, guestName }: { token: string; guestName?: string }) {
   async function onCopy() {
-    const url = `${window.location.origin}/rsvp/${token}`;
+    const url = `${window.location.origin}/rsvp/${token}?share=1`;
     const guestLine = guestName?.trim() ? `Za: ${guestName.trim()}` : "";
     const message = [url, guestLine].filter(Boolean).join("\n");
     await navigator.clipboard.writeText(message);
