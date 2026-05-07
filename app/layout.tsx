@@ -37,7 +37,7 @@ const metadataBase = (() => {
   }
 })();
 
-const ogImageUrl = new URL("/images/wedding-og-v3.jpg", metadataBase).toString();
+const ogImageUrl = new URL("/images/wedding-og-v4.jpg", metadataBase).toString();
 
 export const metadata: Metadata = {
   metadataBase,

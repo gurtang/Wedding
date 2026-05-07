@@ -29,8 +29,8 @@ export function CopyLinkButton({ token, guestName }: { token: string; guestName?
 
   async function onCopy() {
     const url = `${window.location.origin}/rsvp/${token}?share=1`;
-    const guestLine = guestName?.trim() ? `Za: ${guestName.trim()}` : "";
-    const message = [url, guestLine].filter(Boolean).join("\n\n");
+    const guestLine = `Za koga je: ${guestName?.trim() || "-"}`;
+    const message = `${url}\n\n${guestLine}`;
 
     try {
       await copyText(message);
