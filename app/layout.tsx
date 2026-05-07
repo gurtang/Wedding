@@ -43,9 +43,9 @@ export const metadata: Metadata = {
   metadataBase,
   title: {
     default: "Proslavite naš poseban dan sa nama.",
-    template: "%s | Pozivnica za vencanje",
+    template: "%s | Pozivnica za venčanje",
   },
-  description: "Milena & Slobodan - Vencanje",
+  description: "Milena & Slobodan - Venčanje",
   robots: {
     index: true,
     follow: true,
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     siteName: "Milena & Slobodan",
     locale: "sr_RS",
     title: "Proslavite naš poseban dan sa nama.",
-    description: "Milena & Slobodan - Vencanje",
+    description: "Milena & Slobodan - Venčanje",
     images: [
       {
         url: ogImageUrl,
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Proslavite naš poseban dan sa nama.",
-    description: "Milena & Slobodan - Vencanje",
+    description: "Milena & Slobodan - Venčanje",
     images: [ogImageUrl],
   },
   other: {
