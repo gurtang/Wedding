@@ -312,16 +312,21 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
             </div>
           </div>
 
-          {status === "dolazi" && maxAdditional > 0 ? (
+          {maxAdditional > 0 ? (
             <div className="space-y-3 rounded-2xl border border-[#e8d7bb] bg-[#fffdfa] p-4">
               <p className="text-sm font-semibold text-[#5a4524]">
                 {t(language, "additionalGuests")} ({additionalGuests.length}/{maxAdditional})
               </p>
+              {status !== "dolazi" ? (
+                <p className="text-xs text-[#7a6747]">
+                  {language === "sr" ? "Polja će biti aktivna kada izaberete \"Dolazim\"." : "Fields become active after selecting \"Attending\"."}
+                </p>
+              ) : null}
               {additionalGuests.map((name, index) => (
                 <input
                   key={`additional-guest-${index}`}
                   value={name}
-                  disabled={isLocked}
+                  disabled={isLocked || status !== "dolazi"}
                   onChange={(event) => {
                     const next = [...additionalGuests];
                     next[index] = event.target.value;
@@ -334,7 +339,7 @@ export function RsvpForm({ guest, settings, initialLanguage, isLocked }: Props) 
               {canAddMore ? (
                 <button
                   type="button"
-                  disabled={isLocked}
+                  disabled={isLocked || status !== "dolazi"}
                   onClick={() => setAdditionalGuests((prev) => [...prev, ""])}
                   className="wedding-button-secondary px-4 py-2 text-xs"
                 >
