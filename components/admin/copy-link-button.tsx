@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function CopyLinkButton({ token }: { token: string }) {
+export function CopyLinkButton({ token, guestName }: { token: string; guestName?: string }) {
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
 
   async function copyText(text: string) {
@@ -29,7 +29,8 @@ export function CopyLinkButton({ token }: { token: string }) {
 
   async function onCopy() {
     const url = `${window.location.origin}/rsvp/${token}?share=1`;
-    const message = url;
+    const guestLine = `Za: ${guestName?.trim() || "-"}`;
+    const message = `${url}\n\n${guestLine}`;
 
     try {
       await copyText(message);
@@ -44,7 +45,7 @@ export function CopyLinkButton({ token }: { token: string }) {
   return (
     <div className="flex flex-col items-end gap-1">
       <button type="button" onClick={onCopy} className="rounded-full border border-[#b4945a] px-3 py-1 text-xs font-semibold text-[#7a5c2c] transition hover:bg-[#fff2de]">
-        Kopiraj link
+        Kopiraj poruku
       </button>
       {status === "ok" ? <span className="text-[11px] text-green-700">Kopirano</span> : null}
       {status === "error" ? <span className="text-[11px] text-red-700">Kopiranje nije uspelo</span> : null}

@@ -22,11 +22,19 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
 });
 
+function withProtocol(value?: string) {
+  if (!value) return undefined;
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  return `https://${value}`;
+}
+
 const siteUrl =
-  process.env.NEXT_PUBLIC_BASE_URL ||
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
+  withProtocol(process.env.NEXT_PUBLIC_BASE_URL) ||
+  withProtocol(process.env.NEXT_PUBLIC_SITE_URL) ||
+  withProtocol(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ||
+  withProtocol(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
+  withProtocol(process.env.NEXT_PUBLIC_VERCEL_URL) ||
+  withProtocol(process.env.VERCEL_URL) ||
   "http://localhost:3000";
 
 const metadataBase = (() => {
