@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { CopyLinkButton } from "@/components/admin/copy-link-button";
@@ -33,7 +33,7 @@ export default async function GuestDetailPage({ params }: { params: Promise<{ gu
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/admin" className="text-sm font-medium text-[#7a5c2c] hover:underline">Nazad na dashboard</Link>
-        <CopyLinkButton token={guest.token} guestName={guest.display_name} />
+        <CopyLinkButton token={guest.token} />
       </div>
 
       <form action={saveAction} className="space-y-4">
@@ -84,7 +84,7 @@ export default async function GuestDetailPage({ params }: { params: Promise<{ gu
         </section>
 
         <section className="admin-card flex flex-wrap gap-3">
-          <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sačuvaj izmene</button>
+          <button className="rounded-full bg-[#a68149] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Sacuvaj izmene</button>
         </section>
       </form>
 

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { CopyLinkButton } from "@/components/admin/copy-link-button";
 import { StatusBadge } from "@/components/admin/status-badge";
@@ -144,7 +144,7 @@ export default async function AdminDashboard({ searchParams }: Props) {
                       <td className="px-3 py-3">
                         <div className="flex gap-2">
                           <Link href={`/admin/guests/${guest.guest_id}`} className="rounded-full border border-[#c7a66d] px-3 py-1 text-xs font-semibold text-[#6c5127] hover:bg-[#fff4e2]">Detalji</Link>
-                          <CopyLinkButton token={guest.token} guestName={guest.display_name} />
+                          <CopyLinkButton token={guest.token} />
                         </div>
                       </td>
                     </tr>
