@@ -125,31 +125,37 @@ export default function RsvpSection({
           ))}
         </div>
 
+        {maxAdditionalGuests > 0 && (
+          <div className="flex flex-col gap-2">
+            <p className="font-cormorant text-sm text-center" style={{ color: 'var(--ink-lt)' }}>
+              Dodatni gosti: {additionalGuests.length}/{maxAdditionalGuests}
+            </p>
+            {choice !== 'yes' && (
+              <p className="font-cormorant italic text-center text-sm" style={{ color: 'var(--ink-lt)' }}>
+                Polja će biti aktivna kada izaberete „Dolazim“.
+              </p>
+            )}
+            {additionalGuests.length < maxAdditionalGuests && (
+              <button
+                type="button"
+                onClick={() => setAdditionalGuests((prev) => [...prev, ''])}
+                disabled={choice !== 'yes'}
+                className="py-[14px] px-3 border font-montserrat text-[11px] tracking-[0.18em] uppercase transition-all duration-200 disabled:opacity-60"
+                style={{
+                  borderColor: 'var(--rose-lt)',
+                  background: 'transparent',
+                  color: 'var(--ink-lt)',
+                  cursor: choice === 'yes' ? 'pointer' : 'not-allowed',
+                }}
+              >
+                Dodaj gosta
+              </button>
+            )}
+          </div>
+        )}
+
         {choice === 'yes' && (
           <>
-            {maxAdditionalGuests > 0 && (
-              <div className="flex flex-col gap-2">
-                <p className="font-cormorant text-sm text-center" style={{ color: 'var(--ink-lt)' }}>
-                  Dodatni gosti: {additionalGuests.length}/{maxAdditionalGuests}
-                </p>
-                {additionalGuests.length < maxAdditionalGuests && (
-                  <button
-                    type="button"
-                    onClick={() => setAdditionalGuests((prev) => [...prev, ''])}
-                    className="py-[14px] px-3 border font-montserrat text-[11px] tracking-[0.18em] uppercase transition-all duration-200"
-                    style={{
-                      borderColor: 'var(--rose-lt)',
-                      background: 'transparent',
-                      color: 'var(--ink-lt)',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Dodaj gosta
-                  </button>
-                )}
-              </div>
-            )}
-
             {additionalGuests.map((guestName, index) => (
               <div key={index} className="flex gap-2">
                 <input
