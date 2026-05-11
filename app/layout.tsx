@@ -28,14 +28,33 @@ function withProtocol(value?: string) {
   return `https://${value}`;
 }
 
-const siteUrl =
+function isLocalhost(url: string) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+  } catch {
+    return false;
+  }
+}
+
+const preferredSiteUrl =
   withProtocol(process.env.NEXT_PUBLIC_BASE_URL) ||
   withProtocol(process.env.NEXT_PUBLIC_SITE_URL) ||
   withProtocol(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ||
   withProtocol(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
   withProtocol(process.env.NEXT_PUBLIC_VERCEL_URL) ||
-  withProtocol(process.env.VERCEL_URL) ||
-  "http://localhost:3000";
+  withProtocol(process.env.VERCEL_URL);
+
+const vercelFallbackUrl =
+  withProtocol(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ||
+  withProtocol(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
+  withProtocol(process.env.NEXT_PUBLIC_VERCEL_URL) ||
+  withProtocol(process.env.VERCEL_URL);
+
+const siteUrl =
+  preferredSiteUrl && isLocalhost(preferredSiteUrl) && vercelFallbackUrl
+    ? vercelFallbackUrl
+    : preferredSiteUrl || "http://localhost:3000";
 
 const metadataBase = (() => {
   try {
