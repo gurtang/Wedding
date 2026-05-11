@@ -43,7 +43,8 @@ const preferredSiteUrl =
   withProtocol(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ||
   withProtocol(process.env.VERCEL_PROJECT_PRODUCTION_URL) ||
   withProtocol(process.env.NEXT_PUBLIC_VERCEL_URL) ||
-  withProtocol(process.env.VERCEL_URL);
+  withProtocol(process.env.VERCEL_URL) ||
+  "https://pozivnicazavencanje.vercel.app";
 
 const vercelFallbackUrl =
   withProtocol(process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL) ||
@@ -54,7 +55,7 @@ const vercelFallbackUrl =
 const siteUrl =
   preferredSiteUrl && isLocalhost(preferredSiteUrl) && vercelFallbackUrl
     ? vercelFallbackUrl
-    : preferredSiteUrl || "http://localhost:3000";
+    : preferredSiteUrl || "https://pozivnicazavencanje.vercel.app";
 
 const metadataBase = (() => {
   try {
@@ -82,7 +83,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "/",
+    url: new URL("/", metadataBase).toString(),
     siteName: "Milena & Slobodan",
     locale: "sr_RS",
     title: "Proslavite naš poseban dan sa nama.",
@@ -93,6 +94,7 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Proslavite naš poseban dan sa nama.",
+        type: "image/jpeg",
       },
     ],
   },
@@ -105,6 +107,7 @@ export const metadata: Metadata = {
   other: {
     "og:image:secure_url": ogImageUrl,
     "og:image:type": "image/jpeg",
+    "og:image:alt": "Proslavite naš poseban dan sa nama.",
   },
 };
 
