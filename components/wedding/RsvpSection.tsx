@@ -32,9 +32,10 @@ export default function RsvpSection({
   const [choice, setChoice] = useState<'yes' | 'no' | null>(
     initialRsvpStatus === 'dolazi' ? 'yes' : initialRsvpStatus === 'ne_dolazi' ? 'no' : null,
   )
-  const [additionalGuests, setAdditionalGuests] = useState<string[]>(
-    initialAdditionalGuestNames.slice(0, Math.max(0, maxAdditionalGuests)),
-  )
+  const [additionalGuests, setAdditionalGuests] = useState<string[]>(() => {
+    const names = Array.isArray(initialAdditionalGuestNames) ? initialAdditionalGuestNames : []
+    return names.slice(0, Math.max(0, maxAdditionalGuests))
+  })
   const [note, setNote] = useState(initialNote)
   const [declineReason, setDeclineReason] = useState(initialDeclineReason)
   const [loading, setLoading] = useState(false)
@@ -64,8 +65,8 @@ export default function RsvpSection({
         })
       }
       setSuccess('Odgovor je uspešno sačuvan.')
-    } catch {
-      setError('Greška pri slanju. Pokušajte ponovo.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Greška pri slanju. Pokušajte ponovo.')
     } finally {
       setLoading(false)
     }

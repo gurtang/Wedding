@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -13,8 +13,8 @@ function getTimeLeft(targetDate: Date): TimeLeft {
   const diff = targetDate.getTime() - Date.now()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   return {
-    days:    Math.floor(diff / 86400000),
-    hours:   Math.floor((diff % 86400000) / 3600000),
+    days: Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
     minutes: Math.floor((diff % 3600000) / 60000),
     seconds: Math.floor((diff % 60000) / 1000),
   }
@@ -38,9 +38,9 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   }, [targetDate])
 
   const units = [
-    { label: 'Dana',    value: timeLeft.days },
-    { label: 'Sati',    value: timeLeft.hours },
-    { label: 'Minuta',  value: timeLeft.minutes },
+    { label: 'Dana', value: timeLeft.days },
+    { label: 'Sati', value: timeLeft.hours },
+    { label: 'Minuta', value: timeLeft.minutes },
     { label: 'Sekundi', value: timeLeft.seconds },
   ]
 
@@ -50,7 +50,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
         className="font-montserrat text-[10px] tracking-[0.3em] uppercase mb-3"
         style={{ color: 'var(--gold-lt)' }}
       >
-        Do venčanja
+        Do vencanja
       </p>
       <h2
         className="font-great-vibes mb-8"
@@ -61,8 +61,8 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
 
       <div className="flex justify-center items-start" style={{ gap: 'clamp(16px,5vw,60px)' }}>
         {units.map((unit, i) => (
-          <>
-            <div key={unit.label} className="flex flex-col items-center gap-2">
+          <div key={unit.label} className="contents">
+            <div className="flex flex-col items-center gap-2">
               <span
                 className="font-cormorant font-light leading-none tabular-nums"
                 style={{ fontSize: 'clamp(48px,12vw,90px)', color: 'var(--rose-lt)' }}
@@ -78,14 +78,13 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
             </div>
             {i < units.length - 1 && (
               <span
-                key={`sep-${i}`}
                 className="font-cormorant font-light pt-0.5 opacity-50"
                 style={{ fontSize: 'clamp(40px,10vw,80px)', color: 'var(--gold)' }}
               >
                 ·
               </span>
             )}
-          </>
+          </div>
         ))}
       </div>
     </section>

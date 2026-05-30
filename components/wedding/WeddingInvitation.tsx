@@ -28,6 +28,7 @@ interface WeddingInvitationProps {
   guestName?: string
   maxAdditionalGuests?: number
   showDeadlineCard?: boolean
+  rsvpDeadlineLabel?: string
   initialRsvpStatus?: 'dolazi' | 'ne_dolazi' | 'nije_odgovorio'
   initialAdditionalGuestNames?: string[]
   initialNote?: string
@@ -39,6 +40,7 @@ export default function WeddingInvitation({
   guestName,
   maxAdditionalGuests = 0,
   showDeadlineCard = true,
+  rsvpDeadlineLabel = weddingData.rsvpDeadline,
   initialRsvpStatus = 'nije_odgovorio',
   initialAdditionalGuestNames = [],
   initialNote = '',
@@ -63,7 +65,16 @@ export default function WeddingInvitation({
         decline_reason: data.declineReason,
       }),
     })
-    if (!res.ok) throw new Error('RSVP failed')
+    if (!res.ok) {
+      let message = 'Greška pri slanju. Pokušajte ponovo.'
+      try {
+        const payload = (await res.json()) as { error?: string }
+        if (payload?.error) message = payload.error
+      } catch {
+        // Keep fallback message if response body is not JSON.
+      }
+      throw new Error(message)
+    }
   }
 
   return (
@@ -178,7 +189,7 @@ export default function WeddingInvitation({
                   RSVP rok
                 </span>
                 <span className="font-cormorant text-[24px]" style={{ color: 'var(--ink)' }}>
-                  Potvrdite vaš dolazak najkasnije do 1. juna.
+                  Potvrdite vaš dolazak najkasnije do {rsvpDeadlineLabel}.
                 </span>
               </div>
             )}
@@ -189,7 +200,7 @@ export default function WeddingInvitation({
         <CountdownTimer targetDate={weddingData.date} />
         <RsvpSection
           guestId={guestId}
-          deadline={weddingData.rsvpDeadline}
+          deadline={rsvpDeadlineLabel}
           onSubmit={handleRsvp}
           maxAdditionalGuests={maxAdditionalGuests}
           initialRsvpStatus={initialRsvpStatus}

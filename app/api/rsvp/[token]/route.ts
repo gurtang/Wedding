@@ -10,8 +10,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ token: 
     const updated = await updateGuestResponse(token, body);
     return NextResponse.json({ success: true, guest: updated });
   } catch (error) {
+    const rawMessage = error instanceof Error ? error.message : "Failed to save RSVP.";
+    const message =
+      rawMessage === "RSVP is locked for this guest."
+        ? "Rok za online izmenu je istekao. Molimo vas da se obratite domaćinima."
+        : rawMessage;
+
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to save RSVP." },
+      { success: false, error: message },
       { status: 400 },
     );
   }
