@@ -90,6 +90,7 @@ export type TableKind = "outer" | "inner" | "head" | "music";
 export interface HallTable {
   id: string;
   label: string;
+  name?: string;
   kind: TableKind;
   maxCapacity: number;
   optimalCapacity: number;

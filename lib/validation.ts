@@ -62,6 +62,7 @@ export const seatingPersonInputSchema = z.object({
 
 export const seatingSaveSchema = z.object({
   people: z.array(seatingPersonInputSchema).max(5000),
+  tableNames: z.record(z.string().trim().max(60), z.string().trim().max(80)).default({}),
 });
 
 

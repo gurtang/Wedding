@@ -67,6 +67,9 @@ const SEATING_COLUMNS = [
   "updated_at",
 ] as const;
 
+const TABLE_NAME_ROW_MARKER = "__table_name__";
+const TABLE_NAME_PERSON_PREFIX = "__table_name::";
+
 const HALL_TABLES: HallTable[] = [
   { id: "1", label: "3", kind: "outer", maxCapacity: 12, optimalCapacity: 11, x: 10, y: 8 },
   { id: "2", label: "1", kind: "outer", maxCapacity: 12, optimalCapacity: 11, x: 24, y: 8 },
@@ -528,6 +531,22 @@ function mapSeatingPerson(headers: string[], row: string[]): SeatingPerson {
 
 type SheetSeatingRow = { person: SeatingPerson; rowNumber: number };
 
+function readTableNamesFromSeatingRows(rows: SheetSeatingRow[]): Record<string, string> {
+  const tableNames: Record<string, string> = {};
+
+  for (const row of rows) {
+    if (row.person.guest_id !== TABLE_NAME_ROW_MARKER) continue;
+
+    const tableId = normalizeTableId(row.person.table_id || row.person.party_id);
+    const name = row.person.person_name.trim();
+    if (tableId && name) {
+      tableNames[tableId] = name;
+    }
+  }
+
+  return tableNames;
+}
+
 async function readSeatingRows(): Promise<SheetSeatingRow[]> {
   const sheets = getSheetsClient();
 
@@ -645,6 +664,20 @@ function normalizeTableId(value: string): string {
   return HALL_TABLES.some((table) => table.id === trimmed) ? trimmed : "";
 }
 
+function normalizeTableNames(input: Record<string, string>): Record<string, string> {
+  const tableNames: Record<string, string> = {};
+
+  for (const [rawTableId, rawName] of Object.entries(input)) {
+    const tableId = normalizeTableId(rawTableId);
+    const name = rawName.trim().replace(/\s+/g, " ");
+    if (tableId && name) {
+      tableNames[tableId] = name;
+    }
+  }
+
+  return tableNames;
+}
+
 function normalizeSeatingPeople(
   inputPeople: Array<Omit<SeatingPerson, "updated_at"> & { updated_at?: string }>,
 ): SeatingPerson[] {
@@ -668,15 +701,34 @@ export async function getSeatingPlanData(): Promise<{ guests: Guest[]; people: S
   const [guests, savedRows] = await Promise.all([listGuests(), readSeatingRows()]);
   const attendingGuests = guests.filter((guest) => guest.rsvp_status === "dolazi");
   const people = buildPeopleFromGuests(attendingGuests, savedRows);
-  return { guests: attendingGuests, people: enforceLinkedParties(people), tables: HALL_TABLES, columns: HALL_COLUMNS };
+  const tableNames = readTableNamesFromSeatingRows(savedRows);
+  const tables = HALL_TABLES.map((table) => ({ ...table, name: tableNames[table.id] ?? "" }));
+
+  return { guests: attendingGuests, people: enforceLinkedParties(people), tables, columns: HALL_COLUMNS };
 }
 
 export async function saveSeatingPlan(input: unknown): Promise<SeatingPerson[]> {
   const parsed = seatingSaveSchema.parse(input);
   const people = normalizeSeatingPeople(parsed.people);
+  const tableNames = normalizeTableNames(parsed.tableNames);
+  const now = toIsoNow();
+  const tableNameRows: SeatingPerson[] = Object.entries(tableNames).map(([tableId, name]) => ({
+    person_id: `${TABLE_NAME_PERSON_PREFIX}${tableId}`,
+    guest_id: TABLE_NAME_ROW_MARKER,
+    party_id: tableId,
+    person_name: name,
+    group: "",
+    side: "zajednicki",
+    is_primary: false,
+    is_detached: false,
+    table_id: tableId,
+    seat_order: 0,
+    updated_at: now,
+  }));
 
   const sheets = getSheetsClient();
-  const values = [SEATING_COLUMNS as unknown as string[], ...people.map((person) => SEATING_COLUMNS.map((key) => serializeSeatingField(key, person[key])))];
+  const rows = [...people, ...tableNameRows];
+  const values = [SEATING_COLUMNS as unknown as string[], ...rows.map((person) => SEATING_COLUMNS.map((key) => serializeSeatingField(key, person[key])))];
 
   await sheets.spreadsheets.values.clear({
     spreadsheetId: spreadsheetId(),

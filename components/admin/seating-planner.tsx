@@ -146,6 +146,9 @@ function buildEntities(people: SeatingPerson[]): SeatableEntity[] {
 
 export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }: Props) {
   const [people, setPeople] = useState<SeatingPerson[]>(initialPeople);
+  const [tableNames, setTableNames] = useState<Record<string, string>>(() =>
+    Object.fromEntries(tables.map((table) => [table.id, table.name ?? ""]).filter(([, name]) => name)),
+  );
   const [query, setQuery] = useState("");
   const [sideFilter, setSideFilter] = useState<Side | "">("");
   const [groupFilter, setGroupFilter] = useState("");
@@ -171,6 +174,15 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
   }, [entities]);
   const tableById = useMemo(() => new Map(tables.map((table) => [table.id, table] as const)), [tables]);
   const tablePeople = useMemo(() => groupPeopleByTable(people), [people]);
+  const primaryNameByParty = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const person of people) {
+      if (person.is_primary) {
+        map.set(person.party_id, person.person_name);
+      }
+    }
+    return map;
+  }, [people]);
 
   const usedByTable = useMemo(() => {
     const result = new Map<string, number>();
@@ -227,6 +239,27 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
     });
     setDirty(true);
     setMessage("");
+  };
+
+  const setTableNamesWithDirty = (updater: (prev: Record<string, string>) => Record<string, string>) => {
+    setTableNames((prev) => updater(prev));
+    setDirty(true);
+    setMessage("");
+  };
+
+  const updateTableName = (tableId: string, name: string) => {
+    setTableNamesWithDirty((prev) => {
+      const next = { ...prev };
+      const normalized = name.replace(/\s+/g, " ").trimStart().slice(0, 80);
+
+      if (normalized.trim()) {
+        next[tableId] = normalized;
+      } else {
+        delete next[tableId];
+      }
+
+      return next;
+    });
   };
 
   const assignEntityToTable = (entityId: string, tableId: string) => {
@@ -335,6 +368,26 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
       });
     });
 
+    setTableNamesWithDirty((prev) => {
+      const next = { ...prev };
+      const sourceName = next[focusedTableId] ?? "";
+      const targetName = next[swapTargetTableId] ?? "";
+
+      if (targetName) {
+        next[focusedTableId] = targetName;
+      } else {
+        delete next[focusedTableId];
+      }
+
+      if (sourceName) {
+        next[swapTargetTableId] = sourceName;
+      } else {
+        delete next[swapTargetTableId];
+      }
+
+      return next;
+    });
+
     setSwapTargetTableId("");
   };
 
@@ -387,7 +440,7 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
   const save = () => {
     startTransition(async () => {
       try {
-        await saveSeatingAction(JSON.stringify({ people }));
+        await saveSeatingAction(JSON.stringify({ people, tableNames }));
         setDirty(false);
         setMessage("Raspored je sačuvan.");
       } catch (error) {
@@ -492,6 +545,7 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
                 {tables.map((table) => {
                   const used = usedByTable.get(table.id) ?? 0;
                   const groupName = mostFrequent((tablePeople.get(table.id) ?? []).map((person) => person.group).filter(Boolean));
+                  const tableName = tableNames[table.id] ?? "";
                   const active = focusedTableId === table.id;
                   const diameter = tableDiameter(table.kind);
                   return (
@@ -515,7 +569,8 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
                       <span className="flex flex-col items-center">
                         <span className="text-lg font-semibold text-[#4f3818]">{table.label}</span>
                         <span className={clsx("rounded-full border px-2 py-0.5 text-[11px]", tableLoadColor(used, table.optimalCapacity, table.maxCapacity))}>{used}/{table.maxCapacity}</span>
-                        {groupName ? <span className="mt-1 max-w-[86px] truncate text-[10px] text-[#6b5028]">{groupName}</span> : null}
+                        {tableName ? <span className="mt-1 max-w-[86px] truncate text-[10px] font-medium text-[#4f3818]">{tableName}</span> : null}
+                        {!tableName && groupName ? <span className="mt-1 max-w-[86px] truncate text-[10px] text-[#6b5028]">{groupName}</span> : null}
                       </span>
                     </button>
                   );
@@ -530,6 +585,16 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
               <p className="mt-2 text-sm text-neutral-600">Klikni na sto da vidiš ko sedi i da premestiš goste.</p>
             ) : (
               <div className="mt-3 space-y-2">
+                <label className="block rounded-lg border border-[#eedfc7] bg-[#fffaf1] p-2 text-sm text-[#4c3617]">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.08em] text-[#7a5b2c]">Ime stola</span>
+                  <input
+                    value={tableNames[focusedTableId] ?? ""}
+                    onChange={(event) => updateTableName(focusedTableId, event.target.value)}
+                    placeholder="Npr. Familija, Kumovi..."
+                    maxLength={80}
+                    className="w-full rounded-lg border border-[#d7c4a4] bg-white px-3 py-2 text-sm text-[#4c3617]"
+                  />
+                </label>
                 <div className="flex flex-wrap items-center gap-2 rounded-lg border border-[#eedfc7] bg-[#fffaf1] p-2">
                   <select
                     value={swapTargetTableId}
@@ -563,7 +628,10 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
                       <div key={person.person_id} className="flex items-center justify-between rounded-lg border border-[#eedfc7] px-3 py-2 text-sm">
                         <div>
                           <p className="font-medium text-[#4c3617]">{person.person_name}</p>
-                          <p className="text-xs text-neutral-600">{person.group || "Bez grupe"} · {person.is_primary ? "Nosilac" : "Dodatni gost"}</p>
+                          <p className="text-xs text-neutral-600">
+                            {person.group || "Bez grupe"} ·{" "}
+                            {person.is_primary ? "Nosilac" : `Dodatni gost - Nosilac ${primaryNameByParty.get(person.party_id) ?? "-"}`}
+                          </p>
                         </div>
                         <div className="flex gap-2">
                           <button onClick={() => entityId && setSelectedEntityId(entityId)} className="rounded-full border border-[#c8a86e] px-3 py-1 text-xs text-[#6f5126] hover:bg-[#fff4e2]">Premesti</button>
