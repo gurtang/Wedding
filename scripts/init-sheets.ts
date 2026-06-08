@@ -60,11 +60,25 @@ const GUEST_HEADERS = [
   "is_locked_manual",
 ];
 
+const SEATING_HEADERS = [
+  "person_id",
+  "guest_id",
+  "party_id",
+  "person_name",
+  "group",
+  "side",
+  "is_primary",
+  "is_detached",
+  "table_id",
+  "seat_order",
+  "updated_at",
+];
+
 async function ensureSheetsExist() {
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
   const existing = new Set((meta.data.sheets ?? []).map((s) => s.properties?.title).filter(Boolean));
 
-  const toCreate = ["Guests", "Settings"].filter((name) => !existing.has(name));
+  const toCreate = ["Guests", "Settings", "Seating"].filter((name) => !existing.has(name));
   if (toCreate.length === 0) return;
 
   await sheets.spreadsheets.batchUpdate({
@@ -94,11 +108,21 @@ async function writeSettingsDefaults() {
   });
 }
 
+async function writeSeatingHeader() {
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: "Seating!A1:K1",
+    valueInputOption: "RAW",
+    requestBody: { values: [SEATING_HEADERS] },
+  });
+}
+
 async function main() {
   await ensureSheetsExist();
   await writeGuestsHeader();
   await writeSettingsDefaults();
-  console.log("Google Sheet initialized: Guests and Settings are ready.");
+  await writeSeatingHeader();
+  console.log("Google Sheet initialized: Guests, Settings and Seating are ready.");
 }
 
 main().catch((error) => {

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { clearAdminSession, setAdminSession } from "@/lib/auth";
 import { requireAdmin } from "@/lib/guards";
-import { markInviteSent, updateGuestAdmin, updateSettings } from "@/lib/sheets";
+import { markInviteSent, saveSeatingPlan, updateGuestAdmin, updateSettings } from "@/lib/sheets";
 
 export async function loginAction(_: { error?: string } | undefined, formData: FormData): Promise<{ error?: string }> {
   const username = String(formData.get("username") ?? "").trim();
@@ -84,4 +84,11 @@ export async function markAsSentAction(guestId: string, formData: FormData): Pro
   await markInviteSent(guestId, channel);
   revalidatePath(`/admin/guests/${guestId}`);
   revalidatePath("/admin");
+}
+
+export async function saveSeatingAction(payload: string): Promise<{ ok: true }> {
+  await requireAdmin();
+  await saveSeatingPlan(JSON.parse(payload));
+  revalidatePath("/admin/seating");
+  return { ok: true };
 }

@@ -85,3 +85,42 @@ export const DEFAULT_SETTINGS: Settings = {
   agenda_en: "Guest arrival at 17:00\nWedding ceremony in the restaurant garden at 18:00",
 };
 
+export type TableKind = "outer" | "inner" | "head" | "music";
+
+export interface HallTable {
+  id: string;
+  label: string;
+  kind: TableKind;
+  maxCapacity: number;
+  optimalCapacity: number;
+  x: number;
+  y: number;
+  hiddenUntilRegularTablesFull?: boolean;
+}
+
+export interface HallColumn {
+  id: string;
+  x: number;
+  y: number;
+}
+
+export interface SeatingPerson {
+  person_id: string;
+  guest_id: string;
+  party_id: string;
+  person_name: string;
+  group: string;
+  side: Side;
+  is_primary: boolean;
+  is_detached: boolean;
+  table_id: string;
+  seat_order: number;
+  updated_at: string;
+}
+
+export interface SeatingPlanSnapshot {
+  people: SeatingPerson[];
+  tables: HallTable[];
+  columns: HallColumn[];
+}
+

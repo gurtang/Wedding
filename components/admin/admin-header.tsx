@@ -11,6 +11,7 @@ export function AdminHeader() {
       </div>
         <nav className="flex items-center gap-2">
           <Link href="/admin" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Dashboard</Link>
+          <Link href="/admin/seating" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Seating</Link>
           <Link href="/admin/settings" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Settings</Link>
         <form action={logoutAction}>
             <button className="rounded-full bg-[#a68149] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Logout</button>

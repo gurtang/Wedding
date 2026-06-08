@@ -47,4 +47,21 @@ export const settingsUpdateSchema = z.object({
   agenda_en: z.string().trim().min(1),
 });
 
+export const seatingPersonInputSchema = z.object({
+  person_id: z.string().trim().min(1).max(200),
+  guest_id: z.string().trim().min(1).max(120),
+  party_id: z.string().trim().min(1).max(120),
+  person_name: z.string().trim().min(1).max(160),
+  group: z.string().trim().max(120),
+  side: z.enum(["mlada", "mladozenja", "zajednicki"]),
+  is_primary: z.boolean(),
+  is_detached: z.boolean(),
+  table_id: z.string().trim().max(60),
+  seat_order: z.number().int().min(0).max(999),
+});
+
+export const seatingSaveSchema = z.object({
+  people: z.array(seatingPersonInputSchema).max(5000),
+});
+
 
