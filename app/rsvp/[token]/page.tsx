@@ -1,5 +1,5 @@
 import WeddingInvitation from "@/components/wedding/WeddingInvitation";
-import { getGuestByToken, getSettings, trackGuestOpen } from "@/lib/sheets";
+import { getGuestByToken, getGuestTableLabels, getSettings, trackGuestOpen } from "@/lib/sheets";
 import { isDeadlinePassed, parseDateInput } from "@/lib/date";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -36,6 +36,9 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
   if (!guest) {
     notFound();
   }
+
+  const tableLabels = await getGuestTableLabels(guest.guest_id);
+
   try {
     await trackGuestOpen(token);
   } catch (error) {
@@ -52,6 +55,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
       initialAdditionalGuestNames={Array.isArray(guest.additional_guest_names) ? guest.additional_guest_names : []}
       initialNote={typeof guest.note === 'string' ? guest.note : ''}
       initialDeclineReason={typeof guest.decline_reason === 'string' ? guest.decline_reason : ''}
+      tableLabels={tableLabels}
     />
   );
 }

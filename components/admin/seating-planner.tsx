@@ -24,6 +24,11 @@ type SeatableEntity = {
   isDetached: boolean;
 };
 
+type TableNote = {
+  guestName: string;
+  note: string;
+};
+
 const sideLabel: Record<Side, string> = {
   mlada: "Mladina strana",
   mladozenja: "Mladoženjina strana",
@@ -75,6 +80,15 @@ function tableDiameter(kind: HallTable["kind"]): number {
   if (kind === "music") return 64;
   if (kind === "inner") return 70;
   return 78;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function groupPeopleByTable(people: SeatingPerson[]): Map<string, SeatingPerson[]> {
@@ -174,6 +188,7 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
   }, [entities]);
   const tableById = useMemo(() => new Map(tables.map((table) => [table.id, table] as const)), [tables]);
   const tablePeople = useMemo(() => groupPeopleByTable(people), [people]);
+  const guestById = useMemo(() => new Map(initialGuests.map((guest) => [guest.guest_id, guest] as const)), [initialGuests]);
   const primaryNameByParty = useMemo(() => {
     const map = new Map<string, string>();
     for (const person of people) {
@@ -201,7 +216,34 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
 
   const selectedEntity = selectedEntityId ? entitiesById.get(selectedEntityId) : undefined;
   const selectedTablePeople = focusedTableId ? tablePeople.get(focusedTableId) ?? [] : [];
+  const focusedTable = focusedTableId ? tableById.get(focusedTableId) : undefined;
   const swapTargetTable = swapTargetTableId ? tableById.get(swapTargetTableId) : undefined;
+  const notesByTable = useMemo(() => {
+    const result = new Map<string, TableNote[]>();
+
+    for (const table of tables) {
+      const tableRows = tablePeople.get(table.id) ?? [];
+      const seenGuestIds = new Set<string>();
+      const notes: TableNote[] = [];
+
+      for (const person of tableRows) {
+        if (seenGuestIds.has(person.guest_id)) continue;
+        seenGuestIds.add(person.guest_id);
+
+        const guest = guestById.get(person.guest_id);
+        const note = guest?.note?.trim();
+        if (note) {
+          notes.push({ guestName: guest?.display_name || person.person_name, note });
+        }
+      }
+
+      if (notes.length > 0) {
+        result.set(table.id, notes);
+      }
+    }
+
+    return result;
+  }, [guestById, tablePeople, tables]);
   const groupOptions = useMemo(() => {
     return [
       ...new Set(
@@ -449,6 +491,164 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
     });
   };
 
+  const exportHallPdf = () => {
+    const printWindow = window.open("", "_blank", "width=1400,height=900");
+    if (!printWindow) {
+      window.alert("Browser je blokirao otvaranje PDF prozora.");
+      return;
+    }
+
+    const tableMarkup = tables
+      .map((table) => {
+        const used = usedByTable.get(table.id) ?? 0;
+        const diameter = table.kind === "head" ? 22 : table.kind === "music" ? 24 : table.kind === "inner" ? 26 : 29;
+
+        return `
+          <div class="table table-${table.kind}" style="left:${table.x}%;top:${table.y}%;width:${diameter}mm;height:${diameter}mm;">
+            <div class="table-number">${escapeHtml(table.label)}</div>
+            <div class="guest-count">${used}/${table.maxCapacity}</div>
+          </div>
+        `;
+      })
+      .join("");
+
+    const notesMarkup = tables
+      .flatMap((table) => {
+        const notes = notesByTable.get(table.id) ?? [];
+        if (notes.length === 0) return [];
+
+        return [
+          `<section class="note-group">
+            <h2>Sto ${escapeHtml(table.label)}</h2>
+            <ul>
+              ${notes.map((item) => `<li><strong>${escapeHtml(item.guestName)}:</strong> ${escapeHtml(item.note)}</li>`).join("")}
+            </ul>
+          </section>`,
+        ];
+      })
+      .join("");
+
+    const columnMarkup = columns
+      .map((column) => `<div class="column" style="left:${column.x}%;top:${column.y}%;"></div>`)
+      .join("");
+
+    printWindow.document.write(`<!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Raspored stolova</title>
+          <style>
+            @page { size: A3 landscape; margin: 8mm; }
+            * { box-sizing: border-box; }
+            body {
+              margin: 0;
+              background: #fff;
+              color: #2f2415;
+              font-family: Arial, Helvetica, sans-serif;
+            }
+            .hall {
+              position: relative;
+              width: 404mm;
+              height: 281mm;
+              border: 1.2mm solid #caa96a;
+              background: #fffdf8;
+              overflow: hidden;
+              page-break-inside: avoid;
+            }
+            .table {
+              position: absolute;
+              transform: translate(-50%, -50%);
+              border-radius: 999px;
+              border: 0.7mm solid #8c672f;
+              background: #fff;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+            }
+            .table-head {
+              border-width: 0.9mm;
+              background: #fff4df;
+            }
+            .table-music {
+              border-style: dashed;
+              background: #fbf5ec;
+            }
+            .table-number {
+              font-size: 14pt;
+              font-weight: 700;
+              line-height: 1;
+            }
+            .guest-count {
+              margin-top: 1.5mm;
+              font-size: 9pt;
+              font-weight: 700;
+              line-height: 1;
+            }
+            .notes-panel {
+              position: absolute;
+              left: 31%;
+              top: 24%;
+              width: 18%;
+              max-height: 52%;
+              overflow: hidden;
+              border: 0.35mm solid #d5bd8c;
+              background: rgba(255, 255, 255, 0.96);
+              padding: 2.2mm 2.4mm;
+              font-size: 6.6pt;
+              line-height: 1.22;
+            }
+            .notes-panel h1 {
+              margin: 0 0 1.8mm;
+              font-size: 7.5pt;
+              font-weight: 700;
+              text-transform: uppercase;
+            }
+            .note-group {
+              margin: 0 0 2mm;
+            }
+            .note-group h2 {
+              margin: 0 0 0.8mm;
+              font-size: 6.8pt;
+              font-weight: 700;
+            }
+            .note-group ul {
+              margin: 0;
+              padding-left: 3.2mm;
+            }
+            .note-group li {
+              margin: 0 0 0.8mm;
+            }
+            .column {
+              position: absolute;
+              width: 8mm;
+              height: 8mm;
+              transform: translate(-50%, -50%);
+              border: 0.7mm solid #c18d36;
+              background: #f8dfaf;
+            }
+            @media print {
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            }
+          </style>
+        </head>
+        <body>
+          <main class="hall">
+            ${columnMarkup}
+            ${tableMarkup}
+            ${notesMarkup ? `<aside class="notes-panel"><h1>Napomene</h1>${notesMarkup}</aside>` : ""}
+          </main>
+          <script>
+            window.addEventListener("load", () => {
+              window.print();
+            });
+          </script>
+        </body>
+      </html>`);
+    printWindow.document.close();
+  };
+
   return (
     <section className="space-y-4">
       <article className="admin-card">
@@ -457,6 +657,7 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
           <span className="text-sm text-neutral-600">Zoom {(zoom * 100).toFixed(0)}%</span>
           <button onClick={() => setZoom((prev) => Math.min(1.8, Number((prev + 0.1).toFixed(2))))} className="rounded-full border border-[#c8a86e] px-3 py-1 text-sm text-[#6f5126] hover:bg-[#fff4e2]">+</button>
           <button onClick={autoAssign} className="ml-2 rounded-full border border-[#c8a86e] px-3 py-1 text-sm text-[#6f5126] hover:bg-[#fff4e2]">Auto popuni</button>
+          <button onClick={exportHallPdf} className="rounded-full border border-[#c8a86e] px-3 py-1 text-sm text-[#6f5126] hover:bg-[#fff4e2]">Export PDF</button>
           <button onClick={save} disabled={isPending || !dirty} className="ml-auto rounded-full bg-[#a68149] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 hover:bg-[#8f6936]">Sačuvaj raspored</button>
         </div>
         {message ? <p className="mt-2 text-sm text-[#6e552b]">{message}</p> : null}
@@ -580,7 +781,7 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
           </article>
 
           <article className="admin-card">
-            <h3 className="font-[family-name:var(--font-serif)] text-xl text-[#463316]">Detalji stola {focusedTableId || "-"}</h3>
+            <h3 className="font-[family-name:var(--font-serif)] text-xl text-[#463316]">Detalji stola {focusedTable?.label || "-"}</h3>
             {!focusedTableId ? (
               <p className="mt-2 text-sm text-neutral-600">Klikni na sto da vidiš ko sedi i da premestiš goste.</p>
             ) : (

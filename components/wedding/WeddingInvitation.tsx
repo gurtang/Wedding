@@ -33,6 +33,7 @@ interface WeddingInvitationProps {
   initialAdditionalGuestNames?: string[]
   initialNote?: string
   initialDeclineReason?: string
+  tableLabels?: string[]
 }
 
 export default function WeddingInvitation({
@@ -45,8 +46,15 @@ export default function WeddingInvitation({
   initialAdditionalGuestNames = [],
   initialNote = '',
   initialDeclineReason = '',
+  tableLabels = [],
 }: WeddingInvitationProps) {
   const [envelopeOpened, setEnvelopeOpened] = useState(false)
+  const tableLabelText =
+    tableLabels.length === 1
+      ? tableLabels[0]
+      : tableLabels.length > 1
+        ? tableLabels.join(', ')
+        : ''
 
   const handleRsvp = async (data: {
     guestId: string
@@ -176,9 +184,20 @@ export default function WeddingInvitation({
                 <line x1="18" y1="14" x2="18" y2="28" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Broj stola</span>
+              {tableLabelText ? (
+                <>
+                  <span className="font-cormorant text-[42px] leading-none" style={{ color: 'var(--ink)' }}>
+                    {tableLabelText}
+                  </span>
+                  <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>
+                    {tableLabels.length === 1 ? 'Vaš broj stola' : 'Vaši brojevi stolova'}
+                  </span>
+                </>
+              ) : (
               <span className="font-cormorant text-[18px]" style={{ color: 'var(--ink-lt)' }}>
                 Ovde ćete moći da vidite vaš broj stola.
               </span>
+              )}
             </div>
             {showDeadlineCard && (
               <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>

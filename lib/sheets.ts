@@ -547,6 +547,10 @@ function readTableNamesFromSeatingRows(rows: SheetSeatingRow[]): Record<string, 
   return tableNames;
 }
 
+function tableLabelById(tableId: string): string {
+  return HALL_TABLES.find((table) => table.id === tableId)?.label ?? tableId;
+}
+
 async function readSeatingRows(): Promise<SheetSeatingRow[]> {
   const sheets = getSheetsClient();
 
@@ -705,6 +709,27 @@ export async function getSeatingPlanData(): Promise<{ guests: Guest[]; people: S
   const tables = HALL_TABLES.map((table) => ({ ...table, name: tableNames[table.id] ?? "" }));
 
   return { guests: attendingGuests, people: enforceLinkedParties(people), tables, columns: HALL_COLUMNS };
+}
+
+export async function getGuestTableLabels(guestId: string): Promise<string[]> {
+  const normalizedGuestId = guestId.trim();
+  if (!normalizedGuestId) return [];
+
+  const rows = await readSeatingRows();
+  const labels: string[] = [];
+  const seen = new Set<string>();
+
+  for (const row of rows) {
+    if (row.person.guest_id !== normalizedGuestId) continue;
+
+    const tableId = normalizeTableId(row.person.table_id);
+    if (!tableId || seen.has(tableId)) continue;
+
+    labels.push(tableLabelById(tableId));
+    seen.add(tableId);
+  }
+
+  return labels;
 }
 
 export async function saveSeatingPlan(input: unknown): Promise<SeatingPerson[]> {
