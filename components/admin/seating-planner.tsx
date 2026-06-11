@@ -528,6 +528,47 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
       })
       .join("");
 
+    const tableGuestListMarkup = (["mlada", "mladozenja", "zajednicki"] as Side[])
+      .map((side) => {
+        const tableSections = tables
+          .flatMap((table) => {
+            const tableRows = (tablePeople.get(table.id) ?? []).filter((person) => person.side === side);
+            if (tableRows.length === 0) return [];
+
+            const tableTitle = tableNames[table.id]?.trim()
+              ? `Sto ${escapeHtml(table.label)} - ${escapeHtml(tableNames[table.id])}`
+              : `Sto ${escapeHtml(table.label)}`;
+
+            return [
+              `<article class="guest-table-card">
+                <h2>${tableTitle}</h2>
+                <ol>
+                  ${tableRows
+                    .map((person) => {
+                      const partyOwner = person.is_primary ? "" : ` <span>(${escapeHtml(primaryNameByParty.get(person.party_id) ?? "dodatni gost")})</span>`;
+                      const group = person.group ? ` <em>${escapeHtml(person.group)}</em>` : "";
+                      return `<li>${escapeHtml(person.person_name)}${partyOwner}${group}</li>`;
+                    })
+                    .join("")}
+                </ol>
+              </article>`,
+            ];
+          })
+          .join("");
+
+        if (!tableSections) return "";
+
+        return `
+          <section class="side-section">
+            <h1>${escapeHtml(sideLabel[side])}</h1>
+            <div class="guest-table-grid">
+              ${tableSections}
+            </div>
+          </section>
+        `;
+      })
+      .join("");
+
     const columnMarkup = columns
       .map((column) => `<div class="column" style="left:${column.x}%;top:${column.y}%;"></div>`)
       .join("");
@@ -628,8 +669,85 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
               border: 0.7mm solid #c18d36;
               background: #f8dfaf;
             }
+            .guest-list-page {
+              page-break-before: always;
+              padding: 5mm;
+              padding-bottom: 0;
+              color: #2f2415;
+              break-after: avoid;
+              page-break-after: avoid;
+            }
+            .guest-list-header {
+              margin-bottom: 4mm;
+              border-bottom: 0.35mm solid #d6bd8d;
+              padding-bottom: 2.5mm;
+            }
+            .guest-list-header h1 {
+              margin: 0;
+              font-size: 18pt;
+              line-height: 1.1;
+            }
+            .guest-list-header p {
+              margin: 1.5mm 0 0;
+              color: #6b5636;
+              font-size: 8.5pt;
+            }
+            .side-section {
+              margin-bottom: 5mm;
+            }
+            .side-section:last-child {
+              margin-bottom: 0;
+              break-after: avoid;
+              page-break-after: avoid;
+            }
+            .side-section > h1 {
+              break-after: avoid;
+              margin: 0 0 2.5mm;
+              border-left: 1.2mm solid #b89458;
+              padding-left: 3mm;
+              color: #4d3718;
+              font-size: 14pt;
+              line-height: 1.2;
+            }
+            .guest-table-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 3mm;
+            }
+            .guest-table-card {
+              break-inside: avoid;
+              break-after: avoid;
+              border: 0.28mm solid #e0c99d;
+              background: #fffdf8;
+              padding: 3mm;
+            }
+            .guest-table-card h2 {
+              margin: 0;
+              color: #4d3718;
+              font-size: 12pt;
+              line-height: 1.2;
+            }
+            .guest-table-card ol {
+              margin: 2mm 0 0;
+              padding-left: 5mm;
+              font-size: 9pt;
+              line-height: 1.32;
+            }
+            .guest-table-card li {
+              margin: 0 0 0.9mm;
+            }
+            .guest-table-card span,
+            .guest-table-card em {
+              color: #765f3d;
+              font-size: 7.5pt;
+              font-style: normal;
+            }
             @media print {
               body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+              body > *:last-child {
+                break-after: avoid;
+                page-break-after: avoid;
+              }
             }
           </style>
         </head>
@@ -639,6 +757,15 @@ export function SeatingPlanner({ initialGuests, initialPeople, tables, columns }
             ${tableMarkup}
             ${notesMarkup ? `<aside class="notes-panel"><h1>Napomene</h1>${notesMarkup}</aside>` : ""}
           </main>
+          ${tableGuestListMarkup ? `
+            <section class="guest-list-page">
+              <header class="guest-list-header">
+                <h1>Raspored gostiju po stolovima</h1>
+                <p>Prvo su prikazani stolovi sa mladine strane, zatim stolovi sa mladoženjine strane.</p>
+              </header>
+              ${tableGuestListMarkup}
+            </section>
+          ` : ""}
           <script>
             window.addEventListener("load", () => {
               window.print();
