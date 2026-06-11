@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import QRCode from "qrcode";
+import { PrintPhotosCardButton } from "@/components/photos/print-photos-card-button";
 import { guestPhotosUrl } from "@/lib/photos";
 
 export const metadata: Metadata = {
@@ -30,7 +31,7 @@ export default async function GuestPhotosPage() {
         </h1>
 
         <p className="mt-5 max-w-[560px] font-[family-name:var(--font-cormorant)] text-2xl leading-snug text-[#463518] sm:text-3xl">
-          Pomozite nam da sačuvamo najlepše trenutke sa venčanja.
+          Sačuvajmo zajedno uspomene iz vašeg ugla.
         </p>
 
         <div className="my-8 h-px w-32 bg-gradient-to-r from-transparent via-[#b5945f] to-transparent" />
@@ -54,14 +55,17 @@ export default async function GuestPhotosPage() {
           Za dodavanje slika Google može tražiti da budete prijavljeni na Google nalog.
         </p>
 
-        <a
-          href={guestPhotosUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 rounded-full border border-[#a68149] px-7 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#6c5228] transition hover:bg-[#a68149] hover:text-white print:hidden"
-        >
-          Otvori album
-        </a>
+        <div className="flex flex-wrap justify-center gap-3 print:hidden">
+          <PrintPhotosCardButton />
+          <a
+            href={guestPhotosUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-8 rounded-full border border-[#a68149] px-7 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-[#6c5228] transition hover:bg-[#a68149] hover:text-white"
+          >
+            Otvori album
+          </a>
+        </div>
       </section>
     </main>
   );
