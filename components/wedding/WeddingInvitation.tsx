@@ -12,6 +12,8 @@ const weddingData = {
   bride: 'Milena',
   groom: 'Slobodan',
   date: '2026-06-12T17:00:00',
+  envelopeUntilDate: '2026-06-02T00:00:00',
+  photosFeaturedFromDate: '2026-06-13T00:00:00',
   dateDisplay: '12. juna 2026.',
   venue: 'Bolji Život 2',
   venueAddress: 'Elektronska industrija Niš',
@@ -22,6 +24,48 @@ const weddingData = {
     { time: '18:00', name: 'Venčanje', desc: 'Ceremonija u dvorištu restorana' },
     { time: '19:00', name: 'Svečana večera', desc: 'Večera i slavlje sa gostima' },
   ],
+}
+
+function isOnOrAfter(date: string) {
+  return Date.now() >= new Date(date).getTime()
+}
+
+function PhotoShareCard({ featured = false }: { featured?: boolean }) {
+  return (
+    <div
+      className={`flex flex-col items-center text-center ${featured ? 'gap-4 px-7 py-12' : 'col-span-2 gap-3 px-7 py-9'}`}
+      style={{ background: 'white' }}
+    >
+      <svg className={featured ? 'h-12 w-12' : 'h-9 w-9'} style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
+        <rect x="5" y="8" width="26" height="20" rx="2.5" />
+        <circle cx="14" cy="16" r="3" />
+        <path d="M9 25l6.5-6.5L20 23l3-3 4 5" />
+      </svg>
+      <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>
+        Podelite slike
+      </span>
+      <span
+        className={`font-cormorant leading-snug ${featured ? 'text-[30px] sm:text-[36px]' : 'text-[22px]'}`}
+        style={{ color: 'var(--ink)' }}
+      >
+        Sačuvajmo zajedno najlepše trenutke sa venčanja.
+      </span>
+      <p className={`max-w-[520px] leading-relaxed ${featured ? 'text-[15px]' : 'text-[13px]'}`} style={{ color: 'var(--ink-lt)' }}>
+        Otvorite zajednički album i dodajte fotografije ili snimke koje želite da podelite sa nama.
+      </p>
+      <a
+        href={guestPhotosUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`mt-1 inline-flex items-center gap-2.5 font-montserrat uppercase transition-all duration-200 hover:text-white ${featured ? 'px-10 py-4 text-[11px] tracking-[0.22em]' : 'px-7 py-3 text-[10px] tracking-[0.2em]'}`}
+        style={{ border: '1px solid var(--gold)', color: 'var(--ink)', textDecoration: 'none' }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--gold)')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+      >
+        Otvori album
+      </a>
+    </div>
+  )
 }
 
 interface WeddingInvitationProps {
@@ -49,7 +93,9 @@ export default function WeddingInvitation({
   initialDeclineReason = '',
   tableLabels = [],
 }: WeddingInvitationProps) {
-  const [envelopeOpened, setEnvelopeOpened] = useState(false)
+  const showEnvelope = !isOnOrAfter(weddingData.envelopeUntilDate)
+  const showFeaturedPhotos = isOnOrAfter(weddingData.photosFeaturedFromDate)
+  const [envelopeOpened, setEnvelopeOpened] = useState(!showEnvelope)
   const tableLabelText =
     tableLabels.length === 1
       ? tableLabels[0]
@@ -88,7 +134,7 @@ export default function WeddingInvitation({
 
   return (
     <main style={{ background: 'var(--cream)', color: 'var(--ink)' }}>
-      {!envelopeOpened && <EnvelopeAnimation onOpen={() => setEnvelopeOpened(true)} />}
+      {showEnvelope && !envelopeOpened && <EnvelopeAnimation onOpen={() => setEnvelopeOpened(true)} />}
 
       <div
         style={{
@@ -98,6 +144,14 @@ export default function WeddingInvitation({
         }}
       >
         <HeroSection bride={weddingData.bride} groom={weddingData.groom} dateDisplay={weddingData.dateDisplay} />
+
+        {showFeaturedPhotos && (
+          <section className="px-6 py-10" style={{ background: 'var(--cream)' }}>
+            <div className="mx-auto max-w-[760px] border border-[color:var(--gold-lt)] shadow-[0_16px_50px_rgba(78,54,22,0.08)]">
+              <PhotoShareCard featured />
+            </div>
+          </section>
+        )}
 
         <section className="py-20 px-6" style={{ background: 'var(--cream)' }}>
           <p
@@ -200,31 +254,7 @@ export default function WeddingInvitation({
               </span>
               )}
             </div>
-            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
-              <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
-                <rect x="5" y="8" width="26" height="20" rx="2.5" />
-                <circle cx="14" cy="16" r="3" />
-                <path d="M9 25l6.5-6.5L20 23l3-3 4 5" />
-              </svg>
-              <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Podelite slike</span>
-              <span className="font-cormorant text-[22px] leading-snug" style={{ color: 'var(--ink)' }}>
-                Sačuvajmo zajedno najlepše trenutke sa venčanja.
-              </span>
-              <p className="max-w-[420px] text-[13px] leading-relaxed" style={{ color: 'var(--ink-lt)' }}>
-                Otvorite zajednički album i dodajte fotografije ili snimke koje želite da podelite sa nama.
-              </p>
-              <a
-                href={guestPhotosUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-1 inline-flex items-center gap-2.5 px-7 py-3 font-montserrat text-[10px] tracking-[0.2em] uppercase transition-all duration-200 hover:text-white"
-                style={{ border: '1px solid var(--gold)', color: 'var(--ink)', textDecoration: 'none' }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--gold)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-              >
-                Otvori album
-              </a>
-            </div>
+            {!showFeaturedPhotos && <PhotoShareCard />}
             {showDeadlineCard && (
               <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
                 <svg className="h-9 w-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">

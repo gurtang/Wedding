@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { getGuestPhotosQrUrl, guestPhotosUrl } from "@/lib/photos";
+import QRCode from "qrcode";
+import { guestPhotosUrl } from "@/lib/photos";
 
 export const metadata: Metadata = {
   title: "Podelite slike | Milena & Slobodan",
   description: "QR kod za zajednički album venčanja Milene i Slobodana.",
 };
 
-export default function GuestPhotosPage() {
-  const qrUrl = getGuestPhotosQrUrl(720);
+export default async function GuestPhotosPage() {
+  const qrSvg = await QRCode.toString(guestPhotosUrl, {
+    type: "svg",
+    margin: 2,
+    width: 720,
+    color: {
+      dark: "#332c24",
+      light: "#fffaf2",
+    },
+  });
 
   return (
     <main className="min-h-screen bg-[#fbf5eb] px-5 py-8 text-[#332c24] print:bg-white print:p-0">
@@ -27,10 +36,10 @@ export default function GuestPhotosPage() {
         <div className="my-8 h-px w-32 bg-gradient-to-r from-transparent via-[#b5945f] to-transparent" />
 
         <div className="rounded-[28px] border border-[#d8bf94] bg-[#fffaf2] p-4 shadow-sm">
-          <img
-            src={qrUrl}
-            alt="QR kod za zajednički Google Photos album"
-            className="h-[260px] w-[260px] sm:h-[340px] sm:w-[340px]"
+          <div
+            aria-label="QR kod za zajednički Google Photos album"
+            className="h-[260px] w-[260px] [&>svg]:h-full [&>svg]:w-full sm:h-[340px] sm:w-[340px]"
+            dangerouslySetInnerHTML={{ __html: qrSvg }}
           />
         </div>
 
