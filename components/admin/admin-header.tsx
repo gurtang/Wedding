@@ -14,6 +14,7 @@ export function AdminHeader() {
           <Link href="/admin" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Dashboard</Link>
           <Link href="/admin/seating" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Seating</Link>
           <Link href="/admin/settings" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Settings</Link>
+          <Link href="/stolovi" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Pretraga</Link>
           <Link href="/photos" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">QR slike</Link>
           <a href={guestPhotosUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Album</a>
         <form action={logoutAction}>
