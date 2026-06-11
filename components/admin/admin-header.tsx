@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logoutAction } from "@/app/admin/actions";
+import { guestPhotosUrl } from "@/lib/photos";
 
 export function AdminHeader() {
   return (
@@ -13,6 +14,8 @@ export function AdminHeader() {
           <Link href="/admin" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Dashboard</Link>
           <Link href="/admin/seating" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Seating</Link>
           <Link href="/admin/settings" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Settings</Link>
+          <Link href="/photos" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">QR slike</Link>
+          <a href={guestPhotosUrl} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#b4945a] px-4 py-2 text-sm font-medium text-[#6c5228] transition hover:bg-[#fff7ea]">Album</a>
         <form action={logoutAction}>
             <button className="rounded-full bg-[#a68149] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#8f6936]">Logout</button>
         </form>

@@ -6,6 +6,7 @@ import HeroSection from './HeroSection'
 import AgendaSection from './AgendaSection'
 import CountdownTimer from './CountdownTimer'
 import RsvpSection from './RsvpSection'
+import { guestPhotosUrl } from '@/lib/photos'
 
 const weddingData = {
   bride: 'Milena',
@@ -198,6 +199,31 @@ export default function WeddingInvitation({
                 Ovde ćete moći da vidite vaš broj stola.
               </span>
               )}
+            </div>
+            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
+              <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <rect x="5" y="8" width="26" height="20" rx="2.5" />
+                <circle cx="14" cy="16" r="3" />
+                <path d="M9 25l6.5-6.5L20 23l3-3 4 5" />
+              </svg>
+              <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Podelite slike</span>
+              <span className="font-cormorant text-[22px] leading-snug" style={{ color: 'var(--ink)' }}>
+                Sačuvajmo zajedno najlepše trenutke sa venčanja.
+              </span>
+              <p className="max-w-[420px] text-[13px] leading-relaxed" style={{ color: 'var(--ink-lt)' }}>
+                Otvorite zajednički album i dodajte fotografije ili snimke koje želite da podelite sa nama.
+              </p>
+              <a
+                href={guestPhotosUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 inline-flex items-center gap-2.5 px-7 py-3 font-montserrat text-[10px] tracking-[0.2em] uppercase transition-all duration-200 hover:text-white"
+                style={{ border: '1px solid var(--gold)', color: 'var(--ink)', textDecoration: 'none' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--gold)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                Otvori album
+              </a>
             </div>
             {showDeadlineCard && (
               <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
