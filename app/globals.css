@@ -357,3 +357,40 @@ body {
   }
 }
 
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 5mm;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    background: white !important;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .photos-print-sheet {
+    width: 200mm;
+    height: 287mm;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2mm;
+    padding: 0;
+  }
+
+  .photos-print-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    min-height: 0;
+    padding: 4.5mm 4.5mm 3.5mm;
+    border-radius: 6mm;
+    box-shadow: inset 0 0 0 1px rgba(181, 148, 95, 0.25);
+  }
+}
+
