@@ -104,11 +104,6 @@ export const metadata: Metadata = {
     description: "Personalizovana pozivnica za venčanje",
     images: [ogImageUrl],
   },
-  other: {
-    "og:image:secure_url": ogImageUrl,
-    "og:image:type": "image/jpeg",
-    "og:image:alt": "Proslavite naš poseban dan sa nama.",
-  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
