@@ -11,7 +11,7 @@ interface TimeLeft {
 
 function getTimeLeft(targetDate: Date): TimeLeft {
   const diff = targetDate.getTime() - Date.now()
-  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
+  if (!Number.isFinite(diff) || diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   return {
     days: Math.floor(diff / 86400000),
     hours: Math.floor((diff % 86400000) / 3600000),
@@ -30,19 +30,22 @@ interface CountdownTimerProps {
 }
 
 export default function CountdownTimer({ targetDate, variant = 'dark' }: CountdownTimerProps) {
-  const target = new Date(targetDate)
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(target))
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null)
 
   useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(getTimeLeft(target)), 1000)
+    const target = new Date(targetDate)
+    const update = () => setTimeLeft(getTimeLeft(target))
+
+    update()
+    const timer = setInterval(update, 1000)
     return () => clearInterval(timer)
   }, [targetDate])
 
   const units = [
-    { label: 'Dana', value: timeLeft.days },
-    { label: 'Sati', value: timeLeft.hours },
-    { label: 'Minuta', value: timeLeft.minutes },
-    { label: 'Sekundi', value: timeLeft.seconds },
+    { label: 'Dana', value: timeLeft?.days },
+    { label: 'Sati', value: timeLeft?.hours },
+    { label: 'Minuta', value: timeLeft?.minutes },
+    { label: 'Sekundi', value: timeLeft?.seconds },
   ]
 
   return (
@@ -68,7 +71,7 @@ export default function CountdownTimer({ targetDate, variant = 'dark' }: Countdo
                 className="font-cormorant font-light leading-none tabular-nums"
                 style={{ fontSize: variant === 'light' ? 'clamp(28px,7vw,48px)' : 'clamp(48px,12vw,90px)', color: variant === 'light' ? 'var(--ink)' : 'var(--rose-lt)' }}
               >
-                {pad(unit.value)}
+                {unit.value === undefined ? '--' : pad(unit.value)}
               </span>
               <span
                 className="font-montserrat text-[10px] tracking-[0.25em] uppercase"
