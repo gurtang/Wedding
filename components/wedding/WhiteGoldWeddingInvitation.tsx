@@ -5,6 +5,7 @@ import RsvpSection from './RsvpSection'
 import CountdownTimer from './CountdownTimer'
 import AgendaSection from './AgendaSection'
 import { guestPhotosUrl } from '@/lib/photos'
+import Image from 'next/image'
 
 function formatDate(value: string) {
   const date = new Date(`${value}T12:00:00`)
@@ -26,23 +27,7 @@ function parseAgenda(value: string) {
   })
 }
 
-function GoldGeometry({ side }: { side: 'left' | 'right' }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 180 360"
-      className={`pointer-events-none absolute h-80 w-40 text-[#b89a4a] opacity-55 ${side === 'left' ? '-left-20 top-10' : '-right-20 bottom-24 rotate-180'}`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.2"
-    >
-      <ellipse cx="90" cy="180" rx="78" ry="170" />
-      <path d="M13 180 90 10l77 170-77 170L13 180Zm0 0h154M90 10v340M28 90l124 180M152 90 28 270" />
-    </svg>
-  )
-}
-
-function DovesAndRings() {
+function VectorDovesAndRings() {
   return (
     <svg viewBox="0 0 360 170" className="mx-auto w-64 sm:w-80" aria-label="Dva bela goluba i burme">
       <defs>
@@ -69,6 +54,19 @@ function DovesAndRings() {
         <ellipse cx="200" cy="124" rx="42" ry="25" transform="rotate(18 200 124)" />
       </g>
     </svg>
+  )
+}
+
+function DovesAndRings() {
+  return (
+    <Image
+      src="/images/doves-rings-white-gold.png"
+      alt="Dva bela goluba sa zlatnim burmama"
+      width={1024}
+      height={680}
+      priority
+      className="mx-auto h-auto w-60 object-contain sm:w-72"
+    />
   )
 }
 
@@ -301,11 +299,25 @@ export default function WhiteGoldWeddingInvitation({
   return (
     <main style={whiteGoldTheme} className="min-h-screen bg-[#eceae4] px-3 py-5 text-[#151515] sm:px-6 sm:py-10">
       <article className="relative mx-auto max-w-[760px] overflow-hidden border border-[#b79a4a] bg-[#fffefb] shadow-[0_24px_80px_rgba(63,53,30,0.18)]">
-        <FloralDecoration corner="top-left" />
-        <FloralDecoration corner="bottom-right" />
+        <div
+          className="pointer-events-none absolute left-2 top-2 h-[clamp(150px,27vw,220px)] w-[clamp(150px,27vw,220px)] bg-no-repeat opacity-90"
+          style={{
+            backgroundImage: "url('/images/white-rose-invitation-frame-v3.png')",
+            backgroundPosition: 'left top',
+            backgroundSize: '340% auto',
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute bottom-2 right-2 h-[clamp(150px,27vw,220px)] w-[clamp(150px,27vw,220px)] bg-no-repeat opacity-90"
+          style={{
+            backgroundImage: "url('/images/white-rose-invitation-frame-v3.png')",
+            backgroundPosition: 'right bottom',
+            backgroundSize: '340% auto',
+          }}
+          aria-hidden="true"
+        />
         <div className="pointer-events-none absolute inset-2 border border-[#d9c88d]" />
-        <GoldGeometry side="left" />
-        <GoldGeometry side="right" />
 
         {/* Main invitation section */}
         <section className="relative z-10 px-6 py-14 text-center sm:px-16 sm:py-20">
