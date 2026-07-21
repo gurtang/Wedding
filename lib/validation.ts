@@ -32,6 +32,14 @@ export const adminGuestUpdateSchema = z.object({
 });
 
 export const settingsUpdateSchema = z.object({
+  design_template: z.enum(["classic", "white_gold"]),
+  show_event_details: z.boolean(),
+  show_countdown: z.boolean(),
+  show_agenda: z.boolean(),
+  show_rsvp: z.boolean(),
+  show_table: z.boolean(),
+  show_location: z.boolean(),
+  show_photos: z.boolean(),
   couple_names_sr: z.string().trim().min(1),
   couple_names_en: z.string().trim().min(1),
   event_date: z.string().trim().min(1),

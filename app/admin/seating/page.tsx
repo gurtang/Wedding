@@ -4,8 +4,8 @@ import { requireAdmin } from "@/lib/guards";
 import { getSeatingPlanData } from "@/lib/sheets";
 
 export default async function SeatingPage() {
-  await requireAdmin();
-  const { guests, people, tables, columns } = await getSeatingPlanData();
+  const account = await requireAdmin();
+  const { guests, people, tables, columns } = await getSeatingPlanData(account.spreadsheetId);
 
   return (
     <main className="space-y-4">

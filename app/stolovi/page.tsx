@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import { GuestTableSearch, type GuestTableSearchItem } from "@/components/tables/guest-table-search";
 import { requireAdmin } from "@/lib/guards";
 import { getSeatingPlanData } from "@/lib/sheets";
+import { getSettings } from "@/lib/sheets";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Pretraga stola | Milena & Slobodan",
+  title: "Pretraga stola | Pozivnica za venčanje",
   description: "Pretraga gostiju po imenu i prikaz broja stola.",
 };
 
 export default async function TableSearchPage() {
-  await requireAdmin();
-  const { people, tables } = await getSeatingPlanData();
+  const account = await requireAdmin();
+  const [{ people, tables }, settings] = await Promise.all([
+    getSeatingPlanData(account.spreadsheetId),
+    getSettings(account.spreadsheetId),
+  ]);
   const tableById = new Map(tables.map((table) => [table.id, table] as const));
 
   const guests: GuestTableSearchItem[] = people
@@ -35,7 +39,7 @@ export default async function TableSearchPage() {
     <main className="min-h-screen bg-[#fbf5eb] px-5 py-10 text-[#332c24]">
       <section className="mx-auto mb-8 max-w-3xl text-center">
         <p className="font-[family-name:var(--font-montserrat)] text-[11px] uppercase tracking-[0.34em] text-[#a68149]">
-          Milena & Slobodan
+          {settings.couple_names_sr}
         </p>
         <h1 className="mt-4 font-[family-name:var(--font-great-vibes)] text-[62px] leading-none text-[#9d5f61] sm:text-[84px]">
           Pronađite svoj sto

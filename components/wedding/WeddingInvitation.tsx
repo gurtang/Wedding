@@ -7,23 +7,26 @@ import AgendaSection from './AgendaSection'
 import CountdownTimer from './CountdownTimer'
 import RsvpSection from './RsvpSection'
 import { guestPhotosUrl } from '@/lib/photos'
+import type { Settings } from '@/lib/types'
+import WhiteGoldWeddingInvitation from './WhiteGoldWeddingInvitation'
 
-const weddingData = {
-  bride: 'Milena',
-  groom: 'Slobodan',
-  date: '2026-06-12T17:00:00',
-  envelopeUntilDate: '2026-06-02T00:00:00',
-  photosFeaturedFromDate: '2026-06-13T00:00:00',
-  dateDisplay: '12. juna 2026.',
-  venue: 'Bolji Život 2',
-  venueAddress: 'Elektronska industrija Niš',
-  mapsUrl: 'https://maps.app.goo.gl/Nn5DEWVZpCoYY6Qw7',
-  rsvpDeadline: '1. juna 2026.',
-  agenda: [
-    { time: '17:00', name: 'Dolazak gostiju', desc: 'Topao doček i aperitiv' },
-    { time: '18:00', name: 'Venčanje', desc: 'Ceremonija u dvorištu restorana' },
-    { time: '19:00', name: 'Svečana večera', desc: 'Večera i slavlje sa gostima' },
-  ],
+function formatEventDate(value: string) {
+  const date = new Date(`${value}T12:00:00`)
+  return Number.isNaN(date.getTime())
+    ? value
+    : date.toLocaleDateString('sr-RS', { day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+function parseCoupleNames(value: string): [string, string] {
+  const names = value.split(/\s+(?:i|&)\s+/i).map((name) => name.trim()).filter(Boolean)
+  return [names[0] || value || 'Mladenci', names[1] || '']
+}
+
+function parseAgenda(value: string) {
+  return value.split('\n').map((line) => line.trim()).filter(Boolean).map((line) => {
+    const match = line.match(/^(\d{1,2}:\d{2})\s*[-–:]?\s*(.*)$/)
+    return { time: match?.[1] || '', name: match?.[2] || line, desc: '' }
+  })
 }
 
 function isOnOrAfter(date: string) {
@@ -68,7 +71,8 @@ function PhotoShareCard({ featured = false }: { featured?: boolean }) {
   )
 }
 
-interface WeddingInvitationProps {
+export interface WeddingInvitationProps {
+  settings: Settings
   guestId: string
   guestName?: string
   maxAdditionalGuests?: number
@@ -81,20 +85,33 @@ interface WeddingInvitationProps {
   tableLabels?: string[]
 }
 
-export default function WeddingInvitation({
+export default function WeddingInvitation(props: WeddingInvitationProps) {
+  return props.settings.design_template === 'white_gold'
+    ? <WhiteGoldWeddingInvitation {...props} />
+    : <ClassicWeddingInvitation {...props} />
+}
+
+function ClassicWeddingInvitation({
+  settings,
   guestId,
   guestName,
   maxAdditionalGuests = 0,
   showDeadlineCard = true,
-  rsvpDeadlineLabel = weddingData.rsvpDeadline,
+  rsvpDeadlineLabel = '',
   initialRsvpStatus = 'nije_odgovorio',
   initialAdditionalGuestNames = [],
   initialNote = '',
   initialDeclineReason = '',
   tableLabels = [],
 }: WeddingInvitationProps) {
-  const showEnvelope = !isOnOrAfter(weddingData.envelopeUntilDate)
-  const showFeaturedPhotos = isOnOrAfter(weddingData.photosFeaturedFromDate)
+  const [bride, groom] = parseCoupleNames(settings.couple_names_sr)
+  const eventDateTime = `${settings.event_date}T${settings.guest_arrival_time || '00:00'}:00`
+  const dayAfterEvent = new Date(`${settings.event_date}T00:00:00`)
+  dayAfterEvent.setDate(dayAfterEvent.getDate() + 1)
+  const showEnvelope = !isOnOrAfter(`${settings.rsvp_deadline}T23:59:59`)
+  const showFeaturedPhotos = isOnOrAfter(dayAfterEvent.toISOString())
+  const agenda = parseAgenda(settings.agenda_sr)
+  const initials = [bride, groom].filter(Boolean).map((name) => name.charAt(0).toUpperCase()).join('&')
   const [envelopeOpened, setEnvelopeOpened] = useState(!showEnvelope)
   const tableLabelText =
     tableLabels.length === 1
@@ -143,9 +160,9 @@ export default function WeddingInvitation({
           pointerEvents: envelopeOpened ? 'auto' : 'none',
         }}
       >
-        <HeroSection bride={weddingData.bride} groom={weddingData.groom} dateDisplay={weddingData.dateDisplay} />
+        <HeroSection bride={bride} groom={groom} dateDisplay={formatEventDate(settings.event_date)} />
 
-        {showFeaturedPhotos && (
+        {settings.show_photos && showFeaturedPhotos && (
           <section className="px-6 py-10" style={{ background: 'var(--cream)' }}>
             <div className="mx-auto max-w-[760px] border border-[color:var(--gold-lt)] shadow-[0_16px_50px_rgba(78,54,22,0.08)]">
               <PhotoShareCard featured />
@@ -176,11 +193,7 @@ export default function WeddingInvitation({
           >
             <div className="absolute pointer-events-none" style={{ inset: 8, border: '1px solid var(--gold-lt)' }} />
             <p className="font-cormorant font-light leading-relaxed" style={{ fontSize: 'clamp(17px,3vw,22px)', color: 'var(--ink)' }}>
-              Sa velikom radošću vas pozivamo
-              <br />
-              da svojim prisustvom uveličate
-              <br />
-              naše venčanje.
+              {settings.intro_text_sr}
             </p>
             <div
               className="my-6 h-px"
@@ -200,39 +213,38 @@ export default function WeddingInvitation({
             Detalji
           </h2>
           <div className="max-w-[700px] mx-auto grid gap-0.5" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
-            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center" style={{ background: 'white' }}>
+            {settings.show_event_details ? <div className="flex flex-col items-center gap-3 py-9 px-7 text-center" style={{ background: 'white' }}>
               <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <rect x="4" y="7" width="28" height="24" rx="2" /><line x1="4" y1="14" x2="32" y2="14" /><line x1="12" y1="4" x2="12" y2="10" /><line x1="24" y1="4" x2="24" y2="10" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Datum</span>
-              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>12. jun 2026.</span>
-              <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>Petak</span>
-            </div>
-            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center" style={{ background: 'white' }}>
+              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{formatEventDate(settings.event_date)}</span>
+            </div> : null}
+            {settings.show_event_details ? <div className="flex flex-col items-center gap-3 py-9 px-7 text-center" style={{ background: 'white' }}>
               <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <circle cx="18" cy="18" r="13" /><polyline points="18,9 18,18 24,22" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Vreme</span>
-              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>17:00</span>
-              <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>Dolazak gostiju · venčanje 18:00</span>
-            </div>
-            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
+              <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{settings.guest_arrival_time}</span>
+              <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>Dolazak gostiju · venčanje {settings.ceremony_time}</span>
+            </div> : null}
+            {settings.show_event_details ? <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
               <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <path d="M18 3C12.5 3 8 7.5 8 13c0 7.5 10 20 10 20s10-12.5 10-20c0-5.5-4.5-10-10-10z" /><circle cx="18" cy="13" r="3.5" />
               </svg>
               <span className="font-montserrat text-[10px] tracking-[0.25em] uppercase" style={{ color: 'var(--ink-lt)' }}>Lokacija</span>
               <a
-                href={weddingData.mapsUrl}
+                href={settings.map_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex flex-col items-center gap-1 transition-opacity duration-200 hover:opacity-80"
                 style={{ textDecoration: 'none' }}
               >
-                <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{weddingData.venue}</span>
-                <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>{weddingData.venueAddress}</span>
+                <span className="font-cormorant text-[20px]" style={{ color: 'var(--ink)' }}>{settings.venue_name}</span>
+                <span className="text-[12px]" style={{ color: 'var(--ink-lt)' }}>{settings.venue_address}</span>
               </a>
-            </div>
-            <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
+            </div> : null}
+            {settings.show_table ? <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
               <svg className="w-9 h-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <rect x="6" y="8" width="24" height="20" rx="2" />
                 <line x1="6" y1="14" x2="30" y2="14" />
@@ -253,9 +265,9 @@ export default function WeddingInvitation({
                 Ovde ćete moći da vidite vaš broj stola.
               </span>
               )}
-            </div>
-            {!showFeaturedPhotos && <PhotoShareCard />}
-            {showDeadlineCard && (
+            </div> : null}
+            {settings.show_photos && !showFeaturedPhotos ? <PhotoShareCard /> : null}
+            {settings.show_rsvp && showDeadlineCard && (
               <div className="flex flex-col items-center gap-3 py-9 px-7 text-center col-span-2" style={{ background: 'white' }}>
                 <svg className="h-9 w-9" style={{ color: 'var(--gold)' }} viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="1.2">
                   <rect x="4" y="7" width="28" height="24" rx="2" /><line x1="4" y1="14" x2="32" y2="14" /><line x1="12" y1="4" x2="12" y2="10" /><line x1="24" y1="4" x2="24" y2="10" />
@@ -271,9 +283,9 @@ export default function WeddingInvitation({
           </div>
         </section>
 
-        <AgendaSection items={weddingData.agenda} />
-        <CountdownTimer targetDate={weddingData.date} />
-        <RsvpSection
+        {settings.show_agenda ? <AgendaSection items={agenda} /> : null}
+        {settings.show_countdown ? <CountdownTimer targetDate={eventDateTime} /> : null}
+        {settings.show_rsvp ? <RsvpSection
           guestId={guestId}
           deadline={rsvpDeadlineLabel}
           onSubmit={handleRsvp}
@@ -282,20 +294,20 @@ export default function WeddingInvitation({
           initialAdditionalGuestNames={initialAdditionalGuestNames}
           initialNote={initialNote}
           initialDeclineReason={initialDeclineReason}
-        />
+        /> : null}
 
-        <section className="py-20 px-6 text-center" style={{ background: 'var(--cream2)' }}>
+        {settings.show_location ? <section className="py-20 px-6 text-center" style={{ background: 'var(--cream2)' }}>
           <p className="font-montserrat text-[10px] tracking-[0.3em] uppercase mb-3" style={{ color: 'var(--gold)' }}>
             Kako do nas
           </p>
           <h2 className="font-great-vibes mb-8" style={{ fontSize: 'clamp(42px,9vw,68px)', color: 'var(--rose-dk)', lineHeight: 1.1 }}>
             Lokacija
           </h2>
-          <p className="font-cormorant text-[22px] mb-2" style={{ color: 'var(--ink)' }}>{weddingData.venue}</p>
-          <p className="text-[13px] tracking-[0.08em] mb-8" style={{ color: 'var(--ink-lt)' }}>{weddingData.venueAddress}</p>
+          <p className="font-cormorant text-[22px] mb-2" style={{ color: 'var(--ink)' }}>{settings.venue_name}</p>
+          <p className="text-[13px] tracking-[0.08em] mb-8" style={{ color: 'var(--ink-lt)' }}>{settings.venue_address}</p>
           <div className="flex flex-wrap justify-center gap-3">
             <a
-              href={weddingData.mapsUrl}
+              href={settings.map_url}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-9 py-4 font-montserrat text-[11px] tracking-[0.22em] uppercase transition-all duration-200 hover:text-white"
@@ -324,15 +336,15 @@ export default function WeddingInvitation({
               Dodaj u kalendar
             </a>
           </div>
-        </section>
+        </section> : null}
 
         <footer className="py-14 px-6 text-center" style={{ background: 'var(--ink)' }}>
-          <p className="font-great-vibes leading-none" style={{ fontSize: 72, color: 'var(--rose-lt)' }}>M&amp;S</p>
+          <p className="font-great-vibes leading-none" style={{ fontSize: 72, color: 'var(--rose-lt)' }}>{initials}</p>
           <p className="font-cormorant italic mt-3" style={{ fontSize: 16, color: 'oklch(70% 0.02 70)' }}>
-            Radujemo se da ovaj dan podelimo sa vama, porodice Đorđević i Milošević.
+            Radujemo se da ovaj dan podelimo sa vama.
           </p>
           <p className="font-montserrat text-[10px] tracking-[0.3em] uppercase mt-6" style={{ color: 'var(--gold-lt)' }}>
-            12 · 06 · 2026 · Niš
+            {formatEventDate(settings.event_date)} · {settings.venue_name}
           </p>
         </footer>
       </div>

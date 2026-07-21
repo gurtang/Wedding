@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import { isAdminAuthenticated } from "./auth";
+import { getAdminWeddingAccount } from "./auth";
 
 export async function requireAdmin() {
-  const ok = await isAdminAuthenticated();
-  if (!ok) {
+  const account = await getAdminWeddingAccount();
+  if (!account) {
     redirect("/admin/login");
   }
+  return account;
 }
 
 

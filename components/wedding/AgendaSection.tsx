@@ -8,11 +8,12 @@ interface AgendaItem {
 
 interface AgendaSectionProps {
   items: AgendaItem[]
+  compact?: boolean
 }
 
-export default function AgendaSection({ items }: AgendaSectionProps) {
+export default function AgendaSection({ items, compact = false }: AgendaSectionProps) {
   return (
-    <section className="py-20 px-6" style={{ background: 'white' }}>
+    <section className={compact ? 'px-6 py-12' : 'py-20 px-6'} style={{ background: 'white' }}>
       <p
         className="font-montserrat text-[10px] tracking-[0.3em] uppercase text-center mb-3"
         style={{ color: 'var(--gold)' }}
@@ -20,8 +21,8 @@ export default function AgendaSection({ items }: AgendaSectionProps) {
         Raspored
       </p>
       <h2
-        className="font-great-vibes text-center mb-10"
-        style={{ fontSize: 'clamp(42px,9vw,68px)', color: 'var(--rose-dk)', lineHeight: 1.1 }}
+        className={compact ? 'mb-6 text-center font-great-vibes' : 'font-great-vibes text-center mb-10'}
+        style={{ fontSize: compact ? 'clamp(34px,7vw,50px)' : 'clamp(42px,9vw,68px)', color: 'var(--rose-dk)', lineHeight: 1.1 }}
       >
         Program
       </h2>
@@ -30,7 +31,7 @@ export default function AgendaSection({ items }: AgendaSectionProps) {
         {items.map((item, i) => (
           <div
             key={i}
-            className="grid gap-5 py-6"
+            className={compact ? 'grid gap-4 py-4' : 'grid gap-5 py-6'}
             style={{
               gridTemplateColumns: '70px 1fr',
               borderBottom: i < items.length - 1 ? '1px solid var(--rose-lt)' : 'none',

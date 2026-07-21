@@ -28,6 +28,14 @@ export interface Guest {
 }
 
 export interface Settings {
+  design_template: "classic" | "white_gold";
+  show_event_details: boolean;
+  show_countdown: boolean;
+  show_agenda: boolean;
+  show_rsvp: boolean;
+  show_table: boolean;
+  show_location: boolean;
+  show_photos: boolean;
   couple_names_sr: string;
   couple_names_en: string;
   event_date: string;
@@ -54,6 +62,14 @@ export interface DashboardStats {
 }
 
 export const SETTINGS_KEYS: (keyof Settings)[] = [
+  "design_template",
+  "show_event_details",
+  "show_countdown",
+  "show_agenda",
+  "show_rsvp",
+  "show_table",
+  "show_location",
+  "show_photos",
   "couple_names_sr",
   "couple_names_en",
   "event_date",
@@ -70,19 +86,27 @@ export const SETTINGS_KEYS: (keyof Settings)[] = [
 ];
 
 export const DEFAULT_SETTINGS: Settings = {
-  couple_names_sr: "Milena i Slobodan",
-  couple_names_en: "Milena & Slobodan",
-  event_date: "2026-06-12",
-  venue_name: "Bolji Život 2, Elektronska industrija Niš",
-  venue_address: "Bolji Život 2, Elektronska industrija Niš",
-  map_url: "https://maps.app.goo.gl/Nn5DEWVZpCoYY6Qw7",
-  guest_arrival_time: "17:00",
-  ceremony_time: "18:00",
-  rsvp_deadline: "2026-06-01",
-  intro_text_sr: "Sa velikom radošću vas pozivamo da svojim prisustvom uveličate naše venčanje.",
-  intro_text_en: "With great joy, we invite you to honor our wedding with your presence.",
-  agenda_sr: "Dolazak gostiju u 17:00\nVenčanje u dvorištu restorana u 18:00",
-  agenda_en: "Guest arrival at 17:00\nWedding ceremony in the restaurant garden at 18:00",
+  design_template: "classic",
+  show_event_details: true,
+  show_countdown: true,
+  show_agenda: true,
+  show_rsvp: true,
+  show_table: true,
+  show_location: true,
+  show_photos: true,
+  couple_names_sr: "",
+  couple_names_en: "",
+  event_date: "",
+  venue_name: "",
+  venue_address: "",
+  map_url: "",
+  guest_arrival_time: "",
+  ceremony_time: "",
+  rsvp_deadline: "",
+  intro_text_sr: "",
+  intro_text_en: "",
+  agenda_sr: "",
+  agenda_en: "",
 };
 
 export type TableKind = "outer" | "inner" | "head" | "music";

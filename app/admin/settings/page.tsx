@@ -12,9 +12,18 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function Toggle({ name, label, checked }: { name: string; label: string; checked: boolean }) {
+  return (
+    <label className="flex items-center gap-3 rounded-xl border border-[#eadbc2] bg-[#fffcf7] px-4 py-3 text-sm text-[#463316]">
+      <input type="checkbox" name={name} value="true" defaultChecked={checked} className="h-4 w-4 accent-[#9a8141]" />
+      <span>{label}</span>
+    </label>
+  );
+}
+
 export default async function AdminSettingsPage() {
-  await requireAdmin();
-  const settings = await getSettings();
+  const account = await requireAdmin();
+  const settings = await getSettings(account.spreadsheetId);
 
   return (
     <main className="space-y-4">
@@ -24,6 +33,12 @@ export default async function AdminSettingsPage() {
         <h2 className="font-[family-name:var(--font-serif)] text-2xl text-[#463316]">Settings</h2>
 
         <section className="grid gap-4 xl:grid-cols-2">
+          <Field label="Dizajn pozivnice">
+            <select name="design_template" defaultValue={settings.design_template} className="w-full rounded-xl border px-3 py-2">
+              <option value="classic">Originalni romantični dizajn</option>
+              <option value="white_gold">Belo-zlatni cvetni dizajn</option>
+            </select>
+          </Field>
           <Field label="Imena mladenaca (SR)"><input name="couple_names_sr" defaultValue={settings.couple_names_sr} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Couple names (EN)"><input name="couple_names_en" defaultValue={settings.couple_names_en} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Datum dogadjaja"><input name="event_date" defaultValue={settings.event_date} className="w-full rounded-xl border px-3 py-2" /></Field>
@@ -33,6 +48,19 @@ export default async function AdminSettingsPage() {
           <Field label="Vreme dolaska gostiju"><input name="guest_arrival_time" defaultValue={settings.guest_arrival_time} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="Vreme venčanja"><input name="ceremony_time" defaultValue={settings.ceremony_time} className="w-full rounded-xl border px-3 py-2" /></Field>
           <Field label="RSVP deadline"><input name="rsvp_deadline" defaultValue={settings.rsvp_deadline} className="w-full rounded-xl border px-3 py-2" /></Field>
+        </section>
+
+        <section>
+          <h3 className="mb-3 font-semibold text-[#5b4320]">Vidljivost sekcija</h3>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <Toggle name="show_event_details" label="Datum, vreme i sala" checked={settings.show_event_details} />
+            <Toggle name="show_countdown" label="Odbrojavanje" checked={settings.show_countdown} />
+            <Toggle name="show_agenda" label="Program / agenda" checked={settings.show_agenda} />
+            <Toggle name="show_rsvp" label="RSVP forma" checked={settings.show_rsvp} />
+            <Toggle name="show_table" label="Broj stola" checked={settings.show_table} />
+            <Toggle name="show_location" label="Mapa i kalendar" checked={settings.show_location} />
+            <Toggle name="show_photos" label="Deljenje fotografija" checked={settings.show_photos} />
+          </div>
         </section>
 
         <section className="grid gap-4 xl:grid-cols-2">

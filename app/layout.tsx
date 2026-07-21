@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     default: "Proslavite naš poseban dan sa nama.",
     template: "%s | Pozivnica za venčanje",
   },
-  description: "Milena & Slobodan - Venčanje",
+  description: "Personalizovana pozivnica za venčanje",
   robots: {
     index: true,
     follow: true,
@@ -84,10 +84,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: new URL("/", metadataBase).toString(),
-    siteName: "Milena & Slobodan",
+    siteName: "Pozivnica za venčanje",
     locale: "sr_RS",
     title: "Proslavite naš poseban dan sa nama.",
-    description: "Milena & Slobodan - Venčanje",
+    description: "Personalizovana pozivnica za venčanje",
     images: [
       {
         url: ogImageUrl,
@@ -101,7 +101,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Proslavite naš poseban dan sa nama.",
-    description: "Milena & Slobodan - Venčanje",
+    description: "Personalizovana pozivnica za venčanje",
     images: [ogImageUrl],
   },
   other: {

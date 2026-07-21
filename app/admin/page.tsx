@@ -42,11 +42,11 @@ function StatCard({ label, value }: { label: string; value: number }) {
 }
 
 export default async function AdminDashboard({ searchParams }: Props) {
-  await requireAdmin();
+  const account = await requireAdmin();
   const current = (await searchParams) ?? {};
   const activeFilter = current.filter && current.filter !== "sve" ? current.filter : undefined;
 
-  const { guests, stats } = await listGuestsWithStats({
+  const { guests, stats } = await listGuestsWithStats(account.spreadsheetId, {
     filter: activeFilter,
     side: (current.side as "mlada" | "mladozenja" | "zajednicki" | "") ?? "",
     group: current.group,

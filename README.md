@@ -55,6 +55,14 @@ Obavezne:
 - `GOOGLE_PRIVATE_KEY` (sa escaped `\n`)
 - `GOOGLE_SHEETS_SPREADSHEET_ID`
 
+Za dodatne svadbe dodaju se numerisani kompleti (`_2`, `_3`, ...):
+
+- `ADMIN_USERNAME_2`
+- `ADMIN_PASSWORD_2`
+- `GOOGLE_SHEETS_SPREADSHEET_ID_2`
+
+Svaki nalog pristupa samo svom Google Sheet dokumentu. Javna RSVP ruta pronalazi dokument na osnovu jedinstvenog tokena gosta, dok se svi podaci o konkretnoj svadbi čitaju iz njenog `Settings` taba.
+
 Opcione:
 
 - `NEXT_PUBLIC_BASE_URL` (npr. `https://your-domain.vercel.app`)

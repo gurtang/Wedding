@@ -24,9 +24,17 @@ export async function logoutAction(): Promise<void> {
 }
 
 export async function saveSettingsAction(formData: FormData): Promise<void> {
-  await requireAdmin();
+  const account = await requireAdmin();
 
-  await updateSettings({
+  await updateSettings(account.spreadsheetId, {
+    design_template: String(formData.get("design_template") ?? "classic"),
+    show_event_details: formData.get("show_event_details") === "true",
+    show_countdown: formData.get("show_countdown") === "true",
+    show_agenda: formData.get("show_agenda") === "true",
+    show_rsvp: formData.get("show_rsvp") === "true",
+    show_table: formData.get("show_table") === "true",
+    show_location: formData.get("show_location") === "true",
+    show_photos: formData.get("show_photos") === "true",
     couple_names_sr: String(formData.get("couple_names_sr") ?? ""),
     couple_names_en: String(formData.get("couple_names_en") ?? ""),
     event_date: String(formData.get("event_date") ?? ""),
@@ -47,7 +55,7 @@ export async function saveSettingsAction(formData: FormData): Promise<void> {
 }
 
 export async function saveGuestAction(guestId: string, formData: FormData): Promise<void> {
-  await requireAdmin();
+  const account = await requireAdmin();
 
   const rawAdditional = String(formData.get("additional_guest_names") ?? "");
   const additional = rawAdditional
@@ -55,7 +63,7 @@ export async function saveGuestAction(guestId: string, formData: FormData): Prom
     .map((v) => v.trim())
     .filter(Boolean);
 
-  await updateGuestAdmin(guestId, {
+  await updateGuestAdmin(account.spreadsheetId, guestId, {
     display_name: String(formData.get("display_name") ?? ""),
     custom_greeting: String(formData.get("custom_greeting") ?? ""),
     side: String(formData.get("side") ?? "zajednicki"),
@@ -78,17 +86,17 @@ export async function saveGuestAction(guestId: string, formData: FormData): Prom
 }
 
 export async function markAsSentAction(guestId: string, formData: FormData): Promise<void> {
-  await requireAdmin();
+  const account = await requireAdmin();
 
   const channel = String(formData.get("invite_channel") ?? "whatsapp").trim();
-  await markInviteSent(guestId, channel);
+  await markInviteSent(account.spreadsheetId, guestId, channel);
   revalidatePath(`/admin/guests/${guestId}`);
   revalidatePath("/admin");
 }
 
 export async function saveSeatingAction(payload: string): Promise<{ ok: true }> {
-  await requireAdmin();
-  await saveSeatingPlan(JSON.parse(payload));
+  const account = await requireAdmin();
+  await saveSeatingPlan(account.spreadsheetId, JSON.parse(payload));
   revalidatePath("/admin/seating");
   return { ok: true };
 }

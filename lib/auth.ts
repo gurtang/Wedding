@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
+import { getWeddingAccountByUsername, type WeddingAccount } from "./weddings";
 
 const SESSION_COOKIE = "wedding_admin_session";
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
@@ -22,20 +23,29 @@ export function createSessionValue(username: string): string {
 }
 
 export function verifySessionValue(raw: string | undefined): boolean {
+  return Boolean(readSessionUsername(raw));
+}
+
+function readSessionUsername(raw: string | undefined): string | null {
   const secret = getSessionSecret();
-  if (!secret) return false;
-  if (!raw) return false;
+  if (!secret) return null;
+  if (!raw) return null;
   const parts = raw.split(":");
-  if (parts.length < 3) return false;
+  if (parts.length < 3) return null;
   const signature = parts.pop() as string;
   const payload = parts.join(":");
-  return signature === sign(payload, secret);
+  if (signature !== sign(payload, secret)) return null;
+  return parts[0] || null;
 }
 
 export async function isAdminAuthenticated(): Promise<boolean> {
+  return Boolean(await getAdminWeddingAccount());
+}
+
+export async function getAdminWeddingAccount(): Promise<WeddingAccount | null> {
   const store = await cookies();
-  const cookie = store.get(SESSION_COOKIE)?.value;
-  return verifySessionValue(cookie);
+  const username = readSessionUsername(store.get(SESSION_COOKIE)?.value);
+  return username ? getWeddingAccountByUsername(username) : null;
 }
 
 export async function setAdminSession(username: string): Promise<void> {

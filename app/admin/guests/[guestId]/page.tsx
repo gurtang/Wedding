@@ -16,9 +16,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default async function GuestDetailPage({ params }: { params: Promise<{ guestId: string }> }) {
-  await requireAdmin();
+  const account = await requireAdmin();
   const { guestId } = await params;
-  const guest = await getGuestById(guestId);
+  const guest = await getGuestById(account.spreadsheetId, guestId);
 
   if (!guest) {
     notFound();

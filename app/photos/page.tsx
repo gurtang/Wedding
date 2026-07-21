@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import QRCode from "qrcode";
 import { PrintPhotosCardButton } from "@/components/photos/print-photos-card-button";
 import { guestPhotosUrl } from "@/lib/photos";
+import { requireAdmin } from "@/lib/guards";
+import { getSettings } from "@/lib/sheets";
 
 const printCards = Array.from({ length: 9 }, (_, index) => index);
 
 export const metadata: Metadata = {
-  title: "Podelite slike | Milena & Slobodan",
-  description: "QR kod za zajednički album venčanja Milene i Slobodana.",
+  title: "Podelite slike | Pozivnica za venčanje",
+  description: "QR kod za zajednički album venčanja.",
 };
 
 function FloralCorner({ className = "" }: { className?: string }) {
@@ -67,9 +69,11 @@ function OrnamentalBorder() {
 
 function PhotosQrCard({
   qrSvg,
+  coupleNames,
   compact = false,
 }: {
   qrSvg: string;
+  coupleNames: string;
   compact?: boolean;
 }) {
   return (
@@ -103,7 +107,7 @@ function PhotosQrCard({
             : "relative font-[family-name:var(--font-montserrat)] text-[11px] uppercase tracking-[0.34em] text-[#a68149]"
         }
       >
-        Milena & Slobodan
+        {coupleNames}
       </p>
 
       <h1
@@ -175,6 +179,8 @@ function PhotosQrCard({
 }
 
 export default async function GuestPhotosPage() {
+  const account = await requireAdmin();
+  const settings = await getSettings(account.spreadsheetId);
   const qrSvg = await QRCode.toString(guestPhotosUrl, {
     type: "svg",
     margin: 2,
@@ -188,7 +194,7 @@ export default async function GuestPhotosPage() {
   return (
     <main className="min-h-screen bg-[#fbf5eb] px-5 py-8 text-[#332c24] print:bg-white print:p-0">
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-[760px] flex-col items-center justify-center print:hidden">
-        <PhotosQrCard qrSvg={qrSvg} />
+        <PhotosQrCard qrSvg={qrSvg} coupleNames={settings.couple_names_sr} />
         <div className="flex flex-wrap justify-center gap-3 print:hidden">
           <PrintPhotosCardButton />
           <a
@@ -204,7 +210,7 @@ export default async function GuestPhotosPage() {
 
       <section className="photos-print-sheet hidden print:grid" aria-label="Kartice za štampu i sečenje">
         {printCards.map((card) => (
-          <PhotosQrCard key={card} qrSvg={qrSvg} compact />
+          <PhotosQrCard key={card} qrSvg={qrSvg} coupleNames={settings.couple_names_sr} compact />
         ))}
       </section>
     </main>

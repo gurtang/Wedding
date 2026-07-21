@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
-import { updateGuestResponse } from "@/lib/sheets";
+import { findGuestByToken, updateGuestResponse } from "@/lib/sheets";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params;
+    const result = await findGuestByToken(token);
+    if (!result) return NextResponse.json({ success: false, error: "Invitation not found." }, { status: 404 });
     const body = await req.json();
-    const updated = await updateGuestResponse(token, body);
+    const updated = await updateGuestResponse(result.spreadsheetId, token, body);
     return NextResponse.json({ success: true, guest: updated });
   } catch (error) {
     const rawMessage = error instanceof Error ? error.message : "Failed to save RSVP.";

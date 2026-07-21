@@ -1,5 +1,5 @@
 import WeddingInvitation from "@/components/wedding/WeddingInvitation";
-import { getGuestByToken, getGuestTableLabels, getSettings, trackGuestOpen } from "@/lib/sheets";
+import { findGuestByToken, getGuestTableLabels, getSettings, trackGuestOpen } from "@/lib/sheets";
 import { isDeadlinePassed, parseDateInput } from "@/lib/date";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -12,7 +12,10 @@ function formatDeadlineLabel(deadlineRaw: string): string {
 
 export default async function RsvpPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const settings = await getSettings();
+  const result = await findGuestByToken(token);
+  if (!result) notFound();
+  const { spreadsheetId, guest } = result;
+  const settings = await getSettings(spreadsheetId);
   const showDeadlineCard = !isDeadlinePassed(settings);
   const rsvpDeadlineLabel = formatDeadlineLabel(settings.rsvp_deadline);
   const userAgent = (await headers()).get("user-agent")?.toLowerCase() ?? "";
@@ -24,6 +27,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
   if (isMetaCrawler) {
     return (
       <WeddingInvitation
+        settings={settings}
         guestId={token}
         maxAdditionalGuests={0}
         showDeadlineCard={showDeadlineCard}
@@ -32,15 +36,10 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
     );
   }
 
-  const guest = await getGuestByToken(token);
-  if (!guest) {
-    notFound();
-  }
-
-  const tableLabels = await getGuestTableLabels(guest.guest_id);
+  const tableLabels = await getGuestTableLabels(spreadsheetId, guest.guest_id);
 
   try {
-    await trackGuestOpen(token);
+    await trackGuestOpen(spreadsheetId, token);
   } catch (error) {
     console.error("trackGuestOpen failed:", error);
   }
@@ -56,6 +55,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ token: st
       initialNote={typeof guest.note === 'string' ? guest.note : ''}
       initialDeclineReason={typeof guest.decline_reason === 'string' ? guest.decline_reason : ''}
       tableLabels={tableLabels}
+      settings={settings}
     />
   );
 }

@@ -10,6 +10,7 @@ interface RsvpSectionProps {
   initialAdditionalGuestNames?: string[]
   initialNote?: string
   initialDeclineReason?: string
+  compact?: boolean
   onSubmit?: (data: {
     guestId: string
     attending: boolean
@@ -27,6 +28,7 @@ export default function RsvpSection({
   initialAdditionalGuestNames = [],
   initialNote = '',
   initialDeclineReason = '',
+  compact = false,
   onSubmit,
 }: RsvpSectionProps) {
   const [choice, setChoice] = useState<'yes' | 'no' | null>(
@@ -85,7 +87,7 @@ export default function RsvpSection({
   }
 
   return (
-    <section className="py-20 px-6" style={{ background: 'white' }}>
+    <section className={compact ? 'px-6 py-12' : 'py-20 px-6'} style={{ background: 'white' }}>
       <p
         className="font-montserrat text-[10px] tracking-[0.3em] uppercase text-center mb-3"
         style={{ color: 'var(--gold)' }}
@@ -93,8 +95,8 @@ export default function RsvpSection({
         Odgovor
       </p>
       <h2
-        className="font-great-vibes text-center mb-8"
-        style={{ fontSize: 'clamp(42px,9vw,68px)', color: 'var(--rose-dk)', lineHeight: 1.1 }}
+        className={compact ? 'mb-6 text-center font-great-vibes' : 'font-great-vibes text-center mb-8'}
+        style={{ fontSize: compact ? 'clamp(34px,7vw,50px)' : 'clamp(42px,9vw,68px)', color: 'var(--rose-dk)', lineHeight: 1.1 }}
       >
         Potvrda dolaska
       </h2>
@@ -113,7 +115,7 @@ export default function RsvpSection({
                 setError('')
                 setSuccess('')
               }}
-              className="py-[18px] px-3 border font-montserrat text-[11px] tracking-[0.18em] uppercase transition-all duration-200"
+              className={`${compact ? 'py-3.5' : 'py-[18px]'} border px-3 font-montserrat text-[11px] uppercase tracking-[0.18em] transition-all duration-200`}
               style={{
                 borderColor: choice === val ? 'var(--rose-dk)' : 'var(--rose-lt)',
                 background: choice === val ? 'var(--rose-dk)' : 'transparent',
@@ -211,7 +213,7 @@ export default function RsvpSection({
         <button
           onClick={handleSubmit}
           disabled={loading}
-          className="py-[18px] font-montserrat text-[11px] tracking-[0.25em] uppercase text-white transition-all duration-200 disabled:opacity-60"
+          className={`${compact ? 'py-3.5' : 'py-[18px]'} font-montserrat text-[11px] uppercase tracking-[0.25em] text-white transition-all duration-200 disabled:opacity-60`}
           style={{ background: 'var(--rose-dk)', border: 'none', cursor: loading ? 'wait' : 'pointer' }}
         >
           {loading ? 'Slanje...' : 'Sačuvaj odgovor'}

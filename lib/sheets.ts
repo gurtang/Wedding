@@ -15,6 +15,7 @@ import {
   type Settings,
 } from "./types";
 import { safeJsonParse } from "./utils";
+import { getWeddingSpreadsheetIds } from "./weddings";
 
 type GuestListParams = {
   filter?: string;
@@ -147,10 +148,6 @@ function getSheetsClient() {
   return google.sheets({ version: "v4", auth });
 }
 
-function spreadsheetId(): string {
-  return requiredEnv("GOOGLE_SHEETS_SPREADSHEET_ID");
-}
-
 function toIsoNow(): string {
   return new Date().toISOString();
 }
@@ -217,10 +214,10 @@ function generateGuestToken(): string {
   return crypto.randomUUID().replace(/-/g, "");
 }
 
-async function readGuestRows(): Promise<SheetGuestRow[]> {
+async function readGuestRows(spreadsheetId: string): Promise<SheetGuestRow[]> {
   const sheets = getSheetsClient();
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${GUEST_SHEET}!A1:Z`,
   });
 
@@ -258,7 +255,7 @@ async function readGuestRows(): Promise<SheetGuestRow[]> {
     }
 
     await sheets.spreadsheets.values.batchUpdate({
-      spreadsheetId: spreadsheetId(),
+      spreadsheetId,
       requestBody: {
         valueInputOption: "RAW",
         data: toFix.map((item) => ({
@@ -314,43 +311,53 @@ function getGuestStats(guests: Guest[]) {
   };
 }
 
-async function updateGuestRow(rowNumber: number, guest: Guest): Promise<void> {
+async function updateGuestRow(spreadsheetId: string, rowNumber: number, guest: Guest): Promise<void> {
   const sheets = getSheetsClient();
   const values = GUEST_COLUMNS.map((key) => serializeGuestField(key, guest[key]));
   await sheets.spreadsheets.values.update({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${GUEST_SHEET}!A${rowNumber}:U${rowNumber}`,
     valueInputOption: "RAW",
     requestBody: { values: [values] },
   });
 }
 
-export async function getGuestByToken(token: string): Promise<Guest | null> {
-  const rows = await readGuestRows();
+export async function getGuestByToken(spreadsheetId: string, token: string): Promise<Guest | null> {
+  const rows = await readGuestRows(spreadsheetId);
   const found = rows.find((item) => item.guest.token === token.trim());
   return found?.guest ?? null;
 }
 
-export async function getGuestById(guestId: string): Promise<Guest | null> {
-  const rows = await readGuestRows();
+export async function findGuestByToken(token: string): Promise<{ spreadsheetId: string; guest: Guest } | null> {
+  const results = await Promise.all(
+    getWeddingSpreadsheetIds().map(async (spreadsheetId) => ({
+      spreadsheetId,
+      guest: await getGuestByToken(spreadsheetId, token),
+    })),
+  );
+  return results.find((result): result is { spreadsheetId: string; guest: Guest } => Boolean(result.guest)) ?? null;
+}
+
+export async function getGuestById(spreadsheetId: string, guestId: string): Promise<Guest | null> {
+  const rows = await readGuestRows(spreadsheetId);
   const found = rows.find((item) => item.guest.guest_id === guestId.trim());
   return found?.guest ?? null;
 }
 
-export async function listGuests(params?: GuestListParams): Promise<Guest[]> {
-  const rows = await readGuestRows();
+export async function listGuests(spreadsheetId: string, params?: GuestListParams): Promise<Guest[]> {
+  const rows = await readGuestRows(spreadsheetId);
   return rows.map((r) => r.guest).filter((guest) => matchGuestFilter(guest, params));
 }
 
-export async function listGuestsWithStats(params?: GuestListParams): Promise<{ guests: Guest[]; stats: ReturnType<typeof getGuestStats> }> {
-  const allRows = await readGuestRows();
+export async function listGuestsWithStats(spreadsheetId: string, params?: GuestListParams): Promise<{ guests: Guest[]; stats: ReturnType<typeof getGuestStats> }> {
+  const allRows = await readGuestRows(spreadsheetId);
   const allGuests = allRows.map((r) => r.guest);
   const guests = allGuests.filter((guest) => matchGuestFilter(guest, params));
   return { guests, stats: getGuestStats(allGuests) };
 }
 
-export async function trackGuestOpen(token: string): Promise<void> {
-  const rows = await readGuestRows();
+export async function trackGuestOpen(spreadsheetId: string, token: string): Promise<void> {
+  const rows = await readGuestRows(spreadsheetId);
   const item = rows.find((entry) => entry.guest.token === token.trim());
   if (!item) return;
 
@@ -362,10 +369,11 @@ export async function trackGuestOpen(token: string): Promise<void> {
     guest.invite_status = "otvorena";
   }
 
-  await updateGuestRow(item.rowNumber, guest);
+  await updateGuestRow(spreadsheetId, item.rowNumber, guest);
 }
 
 export async function updateGuestResponse(
+  spreadsheetId: string,
   token: string,
   payload: {
     rsvp_status: RSVPStatus | "dolazi" | "ne_dolazi";
@@ -376,14 +384,14 @@ export async function updateGuestResponse(
   },
 ): Promise<Guest> {
   const parsed = responsePayloadSchema.parse(payload);
-  const rows = await readGuestRows();
+  const rows = await readGuestRows(spreadsheetId);
   const item = rows.find((entry) => entry.guest.token === token.trim());
 
   if (!item) {
     throw new Error("Guest token not found.");
   }
 
-  const settings = await getSettings();
+  const settings = await getSettings(spreadsheetId);
   if (isDeadlinePassed(settings) || item.guest.is_locked_manual) {
     throw new Error("RSVP is locked for this guest.");
   }
@@ -405,13 +413,13 @@ export async function updateGuestResponse(
     guest.default_language = payload.language;
   }
 
-  await updateGuestRow(item.rowNumber, guest);
+  await updateGuestRow(spreadsheetId, item.rowNumber, guest);
   return guest;
 }
 
-export async function updateGuestAdmin(guestId: string, input: unknown): Promise<Guest> {
+export async function updateGuestAdmin(spreadsheetId: string, guestId: string, input: unknown): Promise<Guest> {
   const parsed = adminGuestUpdateSchema.parse(input);
-  const rows = await readGuestRows();
+  const rows = await readGuestRows(spreadsheetId);
   const item = rows.find((entry) => entry.guest.guest_id === guestId.trim());
 
   if (!item) {
@@ -436,12 +444,12 @@ export async function updateGuestAdmin(guestId: string, input: unknown): Promise
     guest.additional_guest_names = [];
   }
 
-  await updateGuestRow(item.rowNumber, guest);
+  await updateGuestRow(spreadsheetId, item.rowNumber, guest);
   return guest;
 }
 
-export async function markInviteSent(guestId: string, channel: string): Promise<void> {
-  const rows = await readGuestRows();
+export async function markInviteSent(spreadsheetId: string, guestId: string, channel: string): Promise<void> {
+  const rows = await readGuestRows(spreadsheetId);
   const item = rows.find((entry) => entry.guest.guest_id === guestId.trim());
   if (!item) throw new Error("Guest not found.");
 
@@ -450,13 +458,13 @@ export async function markInviteSent(guestId: string, channel: string): Promise<
   guest.invite_sent_at = toIsoNow();
   guest.invite_channel = channel || guest.invite_channel || "whatsapp";
 
-  await updateGuestRow(item.rowNumber, guest);
+  await updateGuestRow(spreadsheetId, item.rowNumber, guest);
 }
 
-export async function getSettings(): Promise<Settings> {
+export async function getSettings(spreadsheetId: string): Promise<Settings> {
   const sheets = getSheetsClient();
   const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${SETTINGS_SHEET}!A1:B200`,
   });
 
@@ -470,20 +478,35 @@ export async function getSettings(): Promise<Settings> {
   }
 
   const settings = SETTINGS_KEYS.reduce((acc, key) => {
-    acc[key] = map.get(key) ?? DEFAULT_SETTINGS[key];
+    const value = map.get(key) ?? DEFAULT_SETTINGS[key];
+    if (key === "design_template") {
+      acc.design_template = value === "white_gold" ? "white_gold" : "classic";
+    } else if (
+      key === "show_event_details" ||
+      key === "show_countdown" ||
+      key === "show_agenda" ||
+      key === "show_rsvp" ||
+      key === "show_table" ||
+      key === "show_location" ||
+      key === "show_photos"
+    ) {
+      acc[key] = (value === true || String(value).toLowerCase() === "true") as never;
+    } else {
+      acc[key] = value as never;
+    }
     return acc;
   }, {} as Settings);
 
   return normalizeSettings(settings);
 }
 
-export async function updateSettings(input: unknown): Promise<Settings> {
+export async function updateSettings(spreadsheetId: string, input: unknown): Promise<Settings> {
   const parsed = settingsUpdateSchema.parse(input);
   const sheets = getSheetsClient();
   const values = [["key", "value"], ...SETTINGS_KEYS.map((key) => [key, parsed[key]])];
 
   await sheets.spreadsheets.values.update({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${SETTINGS_SHEET}!A1:B${values.length}`,
     valueInputOption: "RAW",
     requestBody: { values },
@@ -551,12 +574,12 @@ function tableLabelById(tableId: string): string {
   return HALL_TABLES.find((table) => table.id === tableId)?.label ?? tableId;
 }
 
-async function readSeatingRows(): Promise<SheetSeatingRow[]> {
+async function readSeatingRows(spreadsheetId: string): Promise<SheetSeatingRow[]> {
   const sheets = getSheetsClient();
 
   try {
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: spreadsheetId(),
+      spreadsheetId,
       range: `${SEATING_SHEET}!A1:K5000`,
     });
 
@@ -701,8 +724,8 @@ function normalizeSeatingPeople(
   return enforceLinkedParties(normalized);
 }
 
-export async function getSeatingPlanData(): Promise<{ guests: Guest[]; people: SeatingPerson[]; tables: HallTable[]; columns: HallColumn[] }> {
-  const [guests, savedRows] = await Promise.all([listGuests(), readSeatingRows()]);
+export async function getSeatingPlanData(spreadsheetId: string): Promise<{ guests: Guest[]; people: SeatingPerson[]; tables: HallTable[]; columns: HallColumn[] }> {
+  const [guests, savedRows] = await Promise.all([listGuests(spreadsheetId), readSeatingRows(spreadsheetId)]);
   const attendingGuests = guests.filter((guest) => guest.rsvp_status === "dolazi");
   const people = buildPeopleFromGuests(attendingGuests, savedRows);
   const tableNames = readTableNamesFromSeatingRows(savedRows);
@@ -711,11 +734,11 @@ export async function getSeatingPlanData(): Promise<{ guests: Guest[]; people: S
   return { guests: attendingGuests, people: enforceLinkedParties(people), tables, columns: HALL_COLUMNS };
 }
 
-export async function getGuestTableLabels(guestId: string): Promise<string[]> {
+export async function getGuestTableLabels(spreadsheetId: string, guestId: string): Promise<string[]> {
   const normalizedGuestId = guestId.trim();
   if (!normalizedGuestId) return [];
 
-  const rows = await readSeatingRows();
+  const rows = await readSeatingRows(spreadsheetId);
   const labels: string[] = [];
   const seen = new Set<string>();
 
@@ -732,7 +755,7 @@ export async function getGuestTableLabels(guestId: string): Promise<string[]> {
   return labels;
 }
 
-export async function saveSeatingPlan(input: unknown): Promise<SeatingPerson[]> {
+export async function saveSeatingPlan(spreadsheetId: string, input: unknown): Promise<SeatingPerson[]> {
   const parsed = seatingSaveSchema.parse(input);
   const people = normalizeSeatingPeople(parsed.people);
   const tableNames = normalizeTableNames(parsed.tableNames);
@@ -756,12 +779,12 @@ export async function saveSeatingPlan(input: unknown): Promise<SeatingPerson[]> 
   const values = [SEATING_COLUMNS as unknown as string[], ...rows.map((person) => SEATING_COLUMNS.map((key) => serializeSeatingField(key, person[key])))];
 
   await sheets.spreadsheets.values.clear({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${SEATING_SHEET}!A2:K5000`,
   });
 
   await sheets.spreadsheets.values.update({
-    spreadsheetId: spreadsheetId(),
+    spreadsheetId,
     range: `${SEATING_SHEET}!A1:K${values.length}`,
     valueInputOption: "RAW",
     requestBody: { values },

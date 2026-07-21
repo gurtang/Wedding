@@ -26,9 +26,10 @@ function pad(n: number) {
 
 interface CountdownTimerProps {
   targetDate: string // ISO string, npr. '2026-06-12T17:00:00'
+  variant?: 'dark' | 'light'
 }
 
-export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
+export default function CountdownTimer({ targetDate, variant = 'dark' }: CountdownTimerProps) {
   const target = new Date(targetDate)
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(getTimeLeft(target))
 
@@ -45,33 +46,33 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
   ]
 
   return (
-    <section className="py-20 px-6 text-center" style={{ background: 'var(--ink)' }}>
+    <section className={variant === 'light' ? 'px-4 py-11 text-center sm:py-12' : 'py-20 px-6 text-center'} style={{ background: variant === 'light' ? 'var(--cream)' : 'var(--ink)' }}>
       <p
         className="font-montserrat text-[10px] tracking-[0.3em] uppercase mb-3"
-        style={{ color: 'var(--gold-lt)' }}
+        style={{ color: variant === 'light' ? 'var(--gold)' : 'var(--gold-lt)' }}
       >
         Do vencanja
       </p>
       <h2
-        className="font-great-vibes mb-8"
-        style={{ fontSize: 'clamp(42px,9vw,68px)', color: 'white', lineHeight: 1.1 }}
+        className={variant === 'light' ? 'mb-6 font-great-vibes' : 'font-great-vibes mb-8'}
+        style={{ fontSize: variant === 'light' ? 'clamp(34px,7vw,50px)' : 'clamp(42px,9vw,68px)', color: variant === 'light' ? 'var(--rose-dk)' : 'white', lineHeight: 1.1 }}
       >
         Odbrojavamo dane
       </h2>
 
-      <div className="flex justify-center items-start" style={{ gap: 'clamp(16px,5vw,60px)' }}>
+      <div className="flex justify-center items-start" style={{ gap: variant === 'light' ? 'clamp(5px,2vw,18px)' : 'clamp(16px,5vw,60px)' }}>
         {units.map((unit, i) => (
           <div key={unit.label} className="contents">
             <div className="flex flex-col items-center gap-2">
               <span
                 className="font-cormorant font-light leading-none tabular-nums"
-                style={{ fontSize: 'clamp(48px,12vw,90px)', color: 'var(--rose-lt)' }}
+                style={{ fontSize: variant === 'light' ? 'clamp(28px,7vw,48px)' : 'clamp(48px,12vw,90px)', color: variant === 'light' ? 'var(--ink)' : 'var(--rose-lt)' }}
               >
                 {pad(unit.value)}
               </span>
               <span
                 className="font-montserrat text-[10px] tracking-[0.25em] uppercase"
-                style={{ color: 'oklch(70% 0.01 70)' }}
+                style={{ color: variant === 'light' ? 'var(--ink-lt)' : 'oklch(70% 0.01 70)' }}
               >
                 {unit.label}
               </span>
@@ -79,7 +80,7 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
             {i < units.length - 1 && (
               <span
                 className="font-cormorant font-light pt-0.5 opacity-50"
-                style={{ fontSize: 'clamp(40px,10vw,80px)', color: 'var(--gold)' }}
+                style={{ fontSize: variant === 'light' ? 'clamp(22px,5vw,34px)' : 'clamp(40px,10vw,80px)', color: 'var(--gold)' }}
               >
                 ·
               </span>

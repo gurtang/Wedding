@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getGuestByToken, getSettings } from "@/lib/sheets";
+import { findGuestByToken, getSettings } from "@/lib/sheets";
 
 export const dynamic = "force-dynamic";
 
@@ -42,14 +42,15 @@ function addHours(date: string, time: string, hoursToAdd: number): { date: strin
 export async function GET(_: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params;
-    const [guest, settings] = await Promise.all([getGuestByToken(token), getSettings()]);
-
-    if (!guest) {
+    const result = await findGuestByToken(token);
+    if (!result) {
       return NextResponse.json({ error: "Invitation not found." }, { status: 404 });
     }
+    const { guest, spreadsheetId } = result;
+    const settings = await getSettings(spreadsheetId);
 
     const startDate = settings.event_date;
-    const startTime = "17:00";
+    const startTime = settings.guest_arrival_time;
     const end = addHours(startDate, startTime, 6);
 
     const title = settings.couple_names_sr || "Svadba";
