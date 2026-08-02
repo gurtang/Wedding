@@ -72,34 +72,14 @@ function DovesAndRings() {
 
 function CoupleIllustration() {
   return (
-    <svg viewBox="0 0 430 330" className="mx-auto w-full max-w-md" aria-label="Ilustracija mladenaca među zelenilom">
-      <defs>
-        <linearGradient id="dress" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#fff" /><stop offset="1" stopColor="#e8e2d4" /></linearGradient>
-        <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#7d8975" /><stop offset="1" stopColor="#4f5c4e" /></linearGradient>
-      </defs>
-      <g stroke="#78856c" strokeWidth="3" fill="none" strokeLinecap="round">
-        <path d="M56 302C86 237 75 161 127 83M374 302c-30-65-19-141-71-219M93 260c45-42 48-91 55-132M337 260c-45-42-48-91-55-132" />
-      </g>
-      <g fill="#9ba58d">
-        <ellipse cx="78" cy="242" rx="16" ry="35" transform="rotate(-43 78 242)" /><ellipse cx="104" cy="194" rx="15" ry="32" transform="rotate(34 104 194)" />
-        <ellipse cx="352" cy="242" rx="16" ry="35" transform="rotate(43 352 242)" /><ellipse cx="326" cy="194" rx="15" ry="32" transform="rotate(-34 326 194)" />
-        <ellipse cx="131" cy="143" rx="12" ry="27" transform="rotate(-35 131 143)" /><ellipse cx="299" cy="143" rx="12" ry="27" transform="rotate(35 299 143)" />
-      </g>
-      <g fill="#f8f5e8" stroke="#d1c7a6">
-        {[65, 111, 315, 361].map((x, index) => <circle key={x} cx={x} cy={270 - (index % 2) * 28} r="14" />)}
-      </g>
-      <g stroke="#3d342c" strokeWidth="2">
-        <circle cx="193" cy="86" r="23" fill="#bf956f" /><path d="M172 83c3-28 39-35 46-3-16-7-29-7-46 3Z" fill="#4b382c" />
-        <path d="M163 118c-11 48-10 113-2 176h74c-1-73-5-129-19-176Z" fill="url(#suit)" />
-        <path d="m189 119 7 31 10-31M196 150v104" fill="none" stroke="#dce0d8" />
-        <circle cx="239" cy="90" r="22" fill="#c49a77" /><path d="M218 90c-1-24 32-38 43-11 6 15 1 29-4 35-1-19-12-31-39-24Z" fill="#4a3428" />
-        <path d="M222 121c-18 50-30 110-42 177h111c-15-74-27-132-42-177Z" fill="url(#dress)" />
-        <path d="M222 121c7 24 20 25 27 0M236 147v145" fill="none" stroke="#c9bea6" />
-        <path d="M213 139c-6 31-4 68 5 99M252 137c10 28 13 62 8 91" fill="none" stroke="#b98f6e" strokeWidth="8" strokeLinecap="round" />
-      </g>
-      <path d="M203 201c17-14 32-14 50 0-6 21-42 22-50 0Z" fill="#f6f2df" stroke="#9aa689" />
-      <g fill="#fff" stroke="#c4b991">{[209, 222, 236, 248].map((x) => <circle key={x} cx={x} cy="199" r="7" />)}</g>
-    </svg>
+    <Image
+      src="/images/wedding-couple.png"
+      alt="Mlada i mladoženja"
+      width={1254}
+      height={1254}
+      sizes="(max-width: 640px) calc(100vw - 72px), 448px"
+      className="mx-auto h-auto w-full max-w-md object-contain"
+    />
   )
 }
 
@@ -398,7 +378,7 @@ export default function WhiteGoldWeddingInvitation({
         ) : null}
 
         {settings.show_rsvp ? (
-          <div className="border-t border-[#ded3b4]">
+          <div className="relative z-10 border-t border-[#ded3b4]">
             <RsvpSection
               compact
               guestId={guestId}
@@ -412,6 +392,7 @@ export default function WhiteGoldWeddingInvitation({
             />
           </div>
         ) : null}
+        <div className="h-[clamp(170px,30vw,240px)]" aria-hidden="true" />
       </article>
     </main>
   )
